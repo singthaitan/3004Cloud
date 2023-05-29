@@ -1,0 +1,62 @@
+version: '3.8'
+services:
+  db_Hougang:
+    container_name: Hougang_db
+    image: mysql
+    cap_add:
+      - SYS_NICE
+    restart: always
+    environment:
+      MYSQL_DATABASE: hougang_power
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: admin
+      SERVICE_NAME: sql
+    ports:
+      - '3307:3306'
+    volumes:
+      - mysql_hougang:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    
+  db_AngMoKio:
+    container_name: AngMoKio_db
+    image: mysql
+    cap_add:
+      - SYS_NICE
+    restart: always
+    environment:
+      MYSQL_DATABASE: angmokio_power
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: admin
+      SERVICE_NAME: sql
+    ports:
+      - '3308:3306'
+    volumes:
+      - mysql_angmokio:/var/lib/mysql
+
+  db_Jurong:
+    container_name: Jurong_db
+    image: mysql
+    cap_add:
+      - SYS_NICE
+    restart: always
+    environment:
+      MYSQL_DATABASE: jurong_power
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: admin
+      SERVICE_NAME: sql
+    ports:
+      - '3309:3306'
+    volumes:
+      - mysql_jurong:/var/lib/mysql
+
+    
+volumes:
+  mysql_hougang:
+    driver: local
+  mysql_angmokio:
+    driver: local
+  mysql_jurong:
+    driver: local

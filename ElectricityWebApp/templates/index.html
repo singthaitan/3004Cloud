@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+		
+		<link rel="stylesheet" href="/static/index.css">
+	</head>
+	
+	<body onload="update_values();">
+		<h1>Urban Farming</h1>
+		<div class = "dataDisplay">
+			<p>Readings</p>
+			<textarea id="readings" cols="70" rows = "10"></textarea>
+			<H2>Electric usage</H2>
+			<canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+		
+		</div>
+	</body>
+	<script type="text/javascript" charset="utf-8">
+		
+		var count = 0;
+		var sensor;
+
+		var dateTime;
+		var dateTime1;
+		function update_values(){
+			var recent="";
+			$.getJSON('/getdata',
+			function(data){
+				sensor = data.sensor;
+				
+				
+				dateTime = data.date;
+				$('#readings').val($('#readings').val() + sensor_data +"\n");
+				$('#readings').scrollTop($('#readings').scrollHeight);
+		
+
+			});
+			
+			chart.data.labels.push(dateTime);
+			chart.data.datasets.forEach((dataset) => {
+				dataset.data.push(light);
+			});
+			chart.update();
+
+			
+			count++;
+			if(count >= 10){
+				document.getElementById('readings').value = '';
+				count = 0;
+			}
+		};
+		var ctx = document.getElementById('myChart');		
+
+		var chart = new Chart(ctx, {
+		type: "line",
+		data: {
+			labels: [light],
+			datasets: [{
+			fill: false,
+			lineTension: 0,
+			backgroundColor: "rgba(0,0,255,1.0)",
+			borderColor: "rgba(0,0,255,0.1)",
+			data: [dateTime]
+			}]
+		},
+		options: {
+			legend: {display: false},
+			scales: {
+				xAxes:[{autoSkip: true,
+					minTicksLimit: 10}],
+				yAxes: [
+					{ticks: {beginAtZero: true}}
+				],
+			
+			}
+		}
+		});
+
+		setInterval(update_values,1500);
+		
+	</script>
+</html>
