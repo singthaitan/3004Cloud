@@ -19,19 +19,15 @@
 	</body>
 	<script type="text/javascript" charset="utf-8">
 		
-		var count = 0;
 		var sensor;
 
-		var dateTime;
-		var dateTime1;
 		function update_values(){
 			var recent="";
 			$.getJSON('/getdata',
 			function(data){
-				sensor = data.sensor;
-				
-				
+				sensor = data.readings;
 				dateTime = data.date;
+				
 				$('#readings').val($('#readings').val() + sensor_data +"\n");
 				$('#readings').scrollTop($('#readings').scrollHeight);
 		
@@ -45,11 +41,11 @@
 			chart.update();
 
 			
-			count++;
-			if(count >= 10){
-				document.getElementById('readings').value = '';
-				count = 0;
-			}
+			// count++;
+			// if(count >= 10){
+			// 	document.getElementById('readings').value = '';
+			// 	count = 0;
+			// }
 		};
 		var ctx = document.getElementById('myChart');		
 
