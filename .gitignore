@@ -1,0 +1,10 @@
+# byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# database & logs
+config.py
+
+# venv
+env
+venv
