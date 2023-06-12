@@ -97,24 +97,24 @@ def register():
 def home():
     return render_template('index.html')
 
-@app.route("/getdata",methods=['GET'])
-def data():
-    if request.method == 'GET':
-        mydb = mysql.connector.connect(
-            host="localhost",
-            user="admin",
-            password="password",
-            port="3307",
-            database="hougang_power"
-        )
+# @app.route("/getdata",methods=['GET'])
+# def data():
+#     if request.method == 'GET':
+#         mydb = mysql.connector.connect(
+#             host="localhost",
+#             user="admin",
+#             password="password",
+#             port="3307",
+#             database="hougang_power"
+#         )
 
-        cursor = mydb.cursor()
-        cursor.execute("SELECT * FROM Readings")
+#         cursor = mydb.cursor()
+#         cursor.execute("SELECT * FROM Readings")
 
-        allResults = cursor.fetchall()
+#         allResults = cursor.fetchall()
 
 	    
-    return jsonify(readings = allResults)
+#     return jsonify(readings = allResults)
 
 
 if __name__ == '__main':
