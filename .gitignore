@@ -1,0 +1,10 @@
+# byte-compiled / optimized / DLL files
+ElectricityWebApp/__pycache__/
+*.py[cod]
+
+# database & logs
+ElectricityWebApp/config.py
+
+# venv
+env
+venv
