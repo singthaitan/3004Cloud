@@ -9,9 +9,17 @@ topic_name = "test"
 group_id = "firstConsumer"
 
 # Setup for mongodb
-myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-mydb = myclient["household_db"]
-collection = mydb["electricity_usage"]
+
+# Local mongodb
+# myclient = pymongo.MongoClient('mongodb://localhost:27017/')
+# mydb = myclient["household_db"]
+# collection = mydb["electricity_usage"]
+
+# Mongodb Atlas
+myclient = pymongo.MongoClient("mongodb+srv://shawn:shawn@app-cluster.zxcw8od.mongodb.net/")
+mydb = myclient["ElectricityApp"]
+collection = mydb["electricity_consumption"]
+
 
 # Create consumer
 consumer = KafkaConsumer(
