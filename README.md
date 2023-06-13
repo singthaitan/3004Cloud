@@ -1,7 +1,9 @@
 # CSC3004 Cloud and Distributed Computing
 
 ## MongoDB connection
-- Change <username> and <passowrd> in config.py to your own mongodb's
+- Create your own config.py (in the same folder as app.py) and have this inside:
+```MONGO_URI = "mongodb+srv://<username>:<password>@app-cluster.zxcw8od.mongodb.net/"```
+Change <username> and <password> to your own mongodb's
 
 ## To run project
 - Create virtualenv folder to install Python dependencies (*Note: python can be python3 or py or python depending on your Python installation): ```python -m venv venv```
