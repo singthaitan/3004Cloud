@@ -1,1 +1,0 @@
-MONGO_URI = "mongodb+srv://<username>:<password>@app-cluster.zxcw8od.mongodb.net/"
