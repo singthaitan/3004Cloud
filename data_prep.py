@@ -38,62 +38,35 @@ from sklearn.metrics import mean_absolute_error
 # Import early stopping from keras callbacks
 from keras.callbacks import EarlyStopping
 
+
 # Import MongoDB
 import pymongo
-# import pandas as pd
+import pandas as pd
 import datetime
 
-# Set up Mongodb Atlas
-myclient = pymongo.MongoClient("mongodb+srv://shawn:shawn@app-cluster.zxcw8od.mongodb.net/")
-mydb = myclient["Hougang-Users"]
-collection = mydb["Household"]
-
-
-# Get household ID based on household type
-listOfHouseholdID = []
-household_type = "5 Room"
-query = {"housing_type": household_type}
-cursor = collection.find(query)
-for document in cursor:
-    household_id = document["_id"]
-    listOfHouseholdID.append(household_id)
-
-# Get all records from listOfHouseholdID in electricity_consumption collection
-mydb = myclient["Hougang-Electric"]
-collection = mydb["Electricity"]
-query = {"household_id": {"$in": listOfHouseholdID}}
-result = collection.find(query)
-dataset = []
-
-
-# Uncomment code below if uploading data into mongodb
-# Getting all household id and storing it into a dictionary based on household type
-"""
-roomTypeDict = {"1 Room": [],
+def getAllHouseholdID(household_type):
+    # Getting all household id and storing it into a dictionary based on household type
+    roomTypeDict = {"1 Room": [],
                 "2 Room": [],
                 "3 Room": [],
                 "4 Room": [],
                 "5 Room": [],}
-mydb = myclient["Hougang-Users"]
-collection = mydb["Household"]
-query = {}
-result = collection.find(query)
-for row in result:
-    id = row["_id"]
-    housing_type = row["housing_type"]
-    roomTypeDict[housing_type].append(id)
+    mydb = myclient["Hougang-Users"]
+    collection = mydb["Household"]
+    query = {}
+    result = collection.find(query)
+    for row in result:
+        id = row["_id"]
+        housing_type = row["housing_type"]
+        roomTypeDict[housing_type].append(id)
 
-# Inserting records from all 5 csvs into database
-mydb = myclient["Hougang-Electric"]
-collection = mydb["Electricity"]
-
-numberOfRecordsAdded = 0
-for roomNo in range(1, 6):
-    household_type = str(roomNo) + " Room"
     listOfID = roomTypeDict[household_type]
-    # for i in listOfID:
-    #     print(i)
-    data = pd.read_csv("hourly_" + str(roomNo) +"_room_dataset.csv", nrows=24)
+    return listOfID
+
+def insertDataFromCsv(filename, listOfID, numberOfData):
+    mydb = myclient["Hougang-Electric"]
+    collection = mydb["Electricity"]
+    data = pd.read_csv(filename, nrows=numberOfData)
 
     listOfElecCons = []
     data.columns = ["electricity_consumption"]
@@ -101,6 +74,7 @@ for roomNo in range(1, 6):
         listOfElecCons.append(i)
 
     timestamp = datetime.datetime(2010, 1, 1)
+    numberOfRecordsAdded = 0
     for i in range(len(listOfElecCons)):
         if i != 0:
             timestamp = timestamp + datetime.timedelta(hours=1)
@@ -114,35 +88,45 @@ for roomNo in range(1, 6):
         else:
             print("Failed to store data in db" + "\n")
 
-print("The total number of records added is: " + str(numberOfRecordsAdded))
+    print("The total number of records added is: " + str(numberOfRecordsAdded))
+
+# Set up Mongodb Atlas
+myclient = pymongo.MongoClient("mongodb+srv://shawn:shawn@app-cluster.zxcw8od.mongodb.net/")
+mydb = myclient["Hougang-Users"]
+collection = mydb["Household"]
+
+
+# Get household ID based on household type
+listOfHouseholdID = getAllHouseholdID("5 Room")
+dataset = []
+
+# Get all records from listOfHouseholdID in electricity_consumption collection
+mydb = myclient["Hougang-Electric"]
+collection = mydb["Electricity"]
+query = {"household_id": {"$in": listOfHouseholdID}}
+result = collection.find(query)
+
+
+# Uncomment code below if uploading data into mongodb
+
+# Inserting records from all 5 csvs into database
+"""
+for roomNo in range(1, 6):
+    listOfID = getAllHouseholdID(str(roomNo) + " Room")
+    # for i in listOfID:
+    #     print(i)
+    insertDataFromCsv("hourly_" + str(roomNo) +"_room_dataset.csv", listOfID, 10)
 """
 
-# Code below uploads all data from hourly_1_room_dataset.csv into mongodb
+
+# Code below uploads all data from hourly_5_room_dataset.csv into mongodb
 """
-mydb = myclient["ElectricityApp"]
-collection = mydb["test_data"]
-data = pd.read_csv('hourly_1_room_dataset.csv')
-
-listOfElecCons = []
-data.columns = ["electricity_consumption"]
-for i in data["electricity_consumption"]:
-    listOfElecCons.append(i)
-
-print(listOfElecCons)
-
-timestamp = datetime.datetime(2010, 1, 1)
-for i in range(len(listOfElecCons)):
-    if i != 0:
-        timestamp = timestamp + datetime.timedelta(hours=1)
-    mongoData = {"timestamp": str(timestamp),
-                 "electricity_consumption": listOfElecCons[i],
-                 "household_id": 1}
-    insert_result = collection.insert_one(mongoData)
-    if(insert_result.acknowledged):
-        print("Successfully inserted into db" + "\n")
-    else:
-        print("Failed to store data in db" + "\n")
+listOfID = getAllHouseholdID("5 Room")
+insertDataFromCsv("hourly_5_room_dataset.csv", listOfID, 1000)
 """
+
+
+
 
 
 # Load the data from the file 'household_power_consumption.txt' using pandas
@@ -160,7 +144,9 @@ for row in result:
     timestamp = row["timestamp"]
     electricity_consumption = row["electricity_consumption"]
     # print("The timestamp is: " + timestamp + "\n" + "The electricity consumption is: " + str(electricity_consumption) + "\n")
-    #print(row)
+    # print(row)
+
+
     row['electricity_consumption'] = pd.to_numeric(row['electricity_consumption'], errors='coerce')
 #row = row.dropna(subset=['electricity_consumption'])
 
