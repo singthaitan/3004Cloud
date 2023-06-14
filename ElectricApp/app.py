@@ -1,3 +1,5 @@
+# import flask
+# from flask import request, redirect, render_template, url_for
 from flask import *
 from pymongo import MongoClient
 # from config import MONGO_URI
@@ -46,9 +48,9 @@ def register():
         last_name = request.form['last_name']
         email = request.form['email']
         password = request.form['password']
-        # address = request.form['address']
-        # unit = request.form['unit']
-        # postal = request.form['postal']
+        address = request.form['address']
+        unit = request.form['unit']
+        postal = request.form['postal']
         # household_type = request.form['household_type']
         # household_size = request.form['household_size']
         region = request.form['region']
@@ -62,7 +64,10 @@ def register():
                                                                           last_name = last_name,
                                                                           email = email, 
                                                                           password = password,
-                                                                          region = region))
+                                                                          region = region, 
+                                                                          address = address,
+                                                                          unit = unit,
+                                                                          postal = postal))
                 print(response.success)
                 
 
