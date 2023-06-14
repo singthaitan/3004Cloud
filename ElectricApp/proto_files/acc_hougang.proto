@@ -16,6 +16,7 @@ message Login_Request {
 
 message Login_Reply {
     bool success = 1;
+    int64 householdid = 2;
 }
 
 message Register_Request  {

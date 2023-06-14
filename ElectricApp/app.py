@@ -6,6 +6,8 @@ from pymongo.server_api import ServerApi
 from werkzeug.security import check_password_hash, generate_password_hash
 from proto_files import acc_hougang_pb2
 from proto_files import acc_hougang_pb2_grpc
+from proto_files import ml_hougang_pb2
+from proto_files import ml_hougang_pb2_grpc
 import grpc
 from flask_session import Session
 
@@ -33,7 +35,9 @@ def login():
                 stub = acc_hougang_pb2_grpc.acc_HougangStub(channel)
 
                 response = stub.Login(acc_hougang_pb2.Login_Request(email = email, password = password))
+                
             if response.success == True:
+                session["householdid"] = response.householdid
                 return redirect(url_for('home'))
             else:
                 return "Invalid email or password"
@@ -80,9 +84,17 @@ def home():
     return render_template('index.html')
 
 
+
+#ML GET  DAY DATA /GET HOUSEID FROM HOUSEHOLD TABLE 
 @app.route("/getdata",methods=['GET'])
 def data():
     if request.method == 'GET':
+        with grpc.insecure_channel('localhost:50052') as channel:
+            stub = ml_hougang_pb2_grpc.ml_HougangStub(channel)
+            response = stub.GetUsageData(ml_hougang_pb2.UsageData_Request(householdid = session["householdid"],
+                                                                          days = 7))
+            for item in response.items:
+                print(f"Timestamp: {item.timestamp}, Electricity usage: {item.electricusage}")
 
         list = [
             {'address':"block 121 pasir ris street 11",

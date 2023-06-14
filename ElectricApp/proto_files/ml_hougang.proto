@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package ml_hougang;
+
+
+service ml_Hougang {
+    rpc GetUsageData (UsageData_Request) returns (UsageData_Reply) {}
+    rpc GetPredictionData (PredictionData_Request) returns (PredictionData_Reply) {}
+
+}
+
+message UsageData_Request {
+    int64 householdid =1;
+    int32 days = 2;
+}
+
+message UsageData {
+    string timestamp = 1;
+    float electricusage = 2;
+}
+
+message UsageData_Reply {
+    repeated UsageData items = 1;
+}
+
+
+
+
+message PredictionData_Request  {
+    int64 householdid = 1;
+    int32 householdtype = 2;
+}
+
+message PredictionData {
+    string timestamp = 1;
+    float electricusage = 2;
+}
+
+message  PredictionData_Reply {
+    repeated PredictionData items = 1;
+}
+
+
+
+
+
