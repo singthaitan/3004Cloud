@@ -11,3 +11,6 @@ venv
 
 # database & logs
 .DS_store
+
+# sessions
+ElectricApp/flask_session/
