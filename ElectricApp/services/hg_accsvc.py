@@ -14,8 +14,9 @@ from werkzeug.security import check_password_hash, generate_password_hash
 client = MongoClient(MONGO_URI, server_api=ServerApi('1'))
 
 # db = client.get_database()
-db = client["ElectricityApp"]
-collection = db["users"]
+db = client["Hougang-Users"]
+col_account = db["Account"]
+col_household = db["Household"]
 
 class acc_Hougang(acc_hougang_pb2_grpc.acc_HougangServicer):
 
@@ -25,7 +26,7 @@ class acc_Hougang(acc_hougang_pb2_grpc.acc_HougangServicer):
         password = request.password
 
         # Query the database for the user with the given email
-        user = collection.find_one({"e-mail address": email})
+        user = col_account.find_one({"e-mail address": email})
 
         if user:
             # Check if the password matches
@@ -40,33 +41,34 @@ class acc_Hougang(acc_hougang_pb2_grpc.acc_HougangServicer):
     
 
     def Register(self, request, context):
-        print("a")
         # Check if the username already exists in the database
-        if collection.find_one({"e-mail address": request.email}):
+        if col_account.find_one({"e-mail address": request.email}):
 
             return acc_hougang_pb2.Register_Reply(success=False)
         else:
             # Hash the password
             hashed_password = generate_password_hash(request.password)
+            
+            # check if address is correct and exist
+            household = col_household.find_one({"street_address": request.address, "postal_code": request.postal, "unit_number": request.unit})
+            if household:
+                # Create a new document for the user
+                user = {
+                    "first name": request.first_name,
+                    "last name": request.last_name,
+                    "e-mail address": request.email,
+                    "password": hashed_password,
+                    # "street address": address,
+                    # "unit number": unit,
+                    # "postal code": postal,
+                    # "household type": household_type,
+                    # "household size": household_size,
+                    "region": request.region,
+                    "householdID": household["_id"]
+                }
 
-            # Create a new document for the user
-            user = {
-                "first name": request.first_name,
-                "last name": request.last_name,
-                "e-mail address": request.email,
-                "password": hashed_password,
-                # "street address": address,
-                # "unit number": unit,
-                # "postal code": postal,
-                # "household type": household_type,
-                # "household size": household_size,
-                "region": request.region
-
-                #add householdid check if it exists too
-            }
-
-            # Insert the document into the collection
-            collection.insert_one(user)
+                # Insert the document into the collection
+                col_account.insert_one(user)
         return acc_hougang_pb2.Register_Reply(success=True)
     
 def serve():
