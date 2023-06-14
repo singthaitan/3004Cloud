@@ -6,24 +6,28 @@ import datetime
 
 # Household 1
 def household1_thread():
-    timestamp = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    # Send data every 10 sec (Simulate sending of data every 1 hour)
+    threading.Timer(10.0, household1_thread).start()
+    timestamp = datetime.datetime.now().replace(minute=0, microsecond=0)
     
     # Data to be sent to broker
     producer.send(
         topic_name,
         key={"household_id":1},
-        value={"household_type": 4, "hour": str(timestamp), "electricity_consumption":format(random.uniform(2, 200), ".2f")}
+        value={"timestamp": str(timestamp), "electricity_consumption":format(random.uniform(2, 200), ".2f")}
     )
 
 # Household 2
 def household2_thread():
-    timestamp = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    # Send data every 10 sec (Simulate sending of data every 1 hour)
+    threading.Timer(10.0, household2_thread).start()
+    timestamp = datetime.datetime.now().replace(minute=0, microsecond=0)
 
     # Data to be sent to broker
     producer.send(
         topic_name,
         key={"household_id":2},
-        value={"household_type": 5, "hour": str(timestamp), "electricity_consumption":format(random.uniform(2, 200), ".2f")}
+        value={"timestamp": str(timestamp), "electricity_consumption":format(random.uniform(2, 200), ".2f")}
     )
 
 # Setup

@@ -42,8 +42,7 @@ consumer.subscription()
 # Printing received messages
 for message in consumer:
     value = message.value
-    type = value['household_type']
-    hour = value['hour']
+    hour = value['timestamp']
     electricity_consumption = value['electricity_consumption']
     print(str(message.partition) + ":" + str(message.offset) + ":" + " k=" + str(message.key)
           + " v=" + str(value))
