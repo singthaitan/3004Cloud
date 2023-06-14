@@ -65,11 +65,6 @@ query = {"household_id": {"$in": listOfHouseholdID}}
 result = collection.find(query)
 dataset = []
 
-for row in result:
-    timestamp = row["timestamp"]
-    electricity_consumption = row["electricity_consumption"]
-    # print("The timestamp is: " + timestamp + "\n" + "The electricity consumption is: " + str(electricity_consumption) + "\n")
-    #print(row)
 
 # Uncomment code below if uploading data into mongodb
 # Getting all household id and storing it into a dictionary based on household type
@@ -161,6 +156,11 @@ for i in range(len(listOfElecCons)):
 
 # Convert the 'Global_active_power' column to numeric format
 # and remove any rows with NaN values
+for row in result:
+    timestamp = row["timestamp"]
+    electricity_consumption = row["electricity_consumption"]
+    # print("The timestamp is: " + timestamp + "\n" + "The electricity consumption is: " + str(electricity_consumption) + "\n")
+    #print(row)
     row['electricity_consumption'] = pd.to_numeric(row['electricity_consumption'], errors='coerce')
 #row = row.dropna(subset=['electricity_consumption'])
 
