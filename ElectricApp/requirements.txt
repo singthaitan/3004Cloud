@@ -1,4 +1,7 @@
-flask==2.0.2
+Flask==2.0.2
+Flask-Session==0.4.0
 pymongo==4.3.3
 Werkzeug==2.0.3
 python-dotenv==0.19.2
+google-cloud
+google-cloud-vision
