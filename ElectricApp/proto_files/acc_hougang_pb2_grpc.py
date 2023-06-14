@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from proto_files import acc_hougang_pb2 as proto__files_dot_acc__hougang__pb2
+import proto_files.acc_hougang_pb2 as acc_hougang_pb2
 
 
 class acc_HougangStub(object):
@@ -16,13 +16,13 @@ class acc_HougangStub(object):
         """
         self.Login = channel.unary_unary(
                 '/acc_hougang.acc_Hougang/Login',
-                request_serializer=proto__files_dot_acc__hougang__pb2.Login_Request.SerializeToString,
-                response_deserializer=proto__files_dot_acc__hougang__pb2.Login_Reply.FromString,
+                request_serializer=acc_hougang_pb2.Login_Request.SerializeToString,
+                response_deserializer=acc_hougang_pb2.Login_Reply.FromString,
                 )
         self.Register = channel.unary_unary(
                 '/acc_hougang.acc_Hougang/Register',
-                request_serializer=proto__files_dot_acc__hougang__pb2.Register_Request.SerializeToString,
-                response_deserializer=proto__files_dot_acc__hougang__pb2.Register_Reply.FromString,
+                request_serializer=acc_hougang_pb2.Register_Request.SerializeToString,
+                response_deserializer=acc_hougang_pb2.Register_Reply.FromString,
                 )
 
 
@@ -46,13 +46,13 @@ def add_acc_HougangServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Login': grpc.unary_unary_rpc_method_handler(
                     servicer.Login,
-                    request_deserializer=proto__files_dot_acc__hougang__pb2.Login_Request.FromString,
-                    response_serializer=proto__files_dot_acc__hougang__pb2.Login_Reply.SerializeToString,
+                    request_deserializer=acc_hougang_pb2.Login_Request.FromString,
+                    response_serializer=acc_hougang_pb2.Login_Reply.SerializeToString,
             ),
             'Register': grpc.unary_unary_rpc_method_handler(
                     servicer.Register,
-                    request_deserializer=proto__files_dot_acc__hougang__pb2.Register_Request.FromString,
-                    response_serializer=proto__files_dot_acc__hougang__pb2.Register_Reply.SerializeToString,
+                    request_deserializer=acc_hougang_pb2.Register_Request.FromString,
+                    response_serializer=acc_hougang_pb2.Register_Reply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -76,8 +76,8 @@ class acc_Hougang(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/acc_hougang.acc_Hougang/Login',
-            proto__files_dot_acc__hougang__pb2.Login_Request.SerializeToString,
-            proto__files_dot_acc__hougang__pb2.Login_Reply.FromString,
+            acc_hougang_pb2.Login_Request.SerializeToString,
+            acc_hougang_pb2.Login_Reply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -93,7 +93,7 @@ class acc_Hougang(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/acc_hougang.acc_Hougang/Register',
-            proto__files_dot_acc__hougang__pb2.Register_Request.SerializeToString,
-            proto__files_dot_acc__hougang__pb2.Register_Reply.FromString,
+            acc_hougang_pb2.Register_Request.SerializeToString,
+            acc_hougang_pb2.Register_Reply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
