@@ -191,10 +191,10 @@
 
 				for (let i in data){
 					sensor = data[i].electricity;
-					dateTime = data[i].hour;
+					dateTime = data[i].timestamp;
 					console.log(sensor);
 
-					$('#readings').val($('#readings').val() + dateTime +"\n");
+					$('#readings').val($('#readings').val() + dateTime +": "+sensor+"\n");
 					$('#readings').scrollTop($('#readings').scrollHeight);
 
 					chart.data.labels.push(dateTime);

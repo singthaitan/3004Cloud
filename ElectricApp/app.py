@@ -94,28 +94,14 @@ def home():
 #ML GET  DAY DATA /GET HOUSEID FROM HOUSEHOLD TABLE 
 @app.route("/getdata",methods=['GET'])
 def data():
+    list = []
     if request.method == 'GET':
         with grpc.insecure_channel('localhost:50052') as channel:
             stub = ml_hougang_pb2_grpc.ml_HougangStub(channel)
             response = stub.GetUsageData(ml_hougang_pb2.UsageData_Request(householdid = session["householdid"],
-                                                                          days = 7))
+                                                                          days = 8))
             for item in response.items:
-                print(f"Timestamp: {item.timestamp}, Electricity usage: {item.electricusage}")
-
-        list = [
-            {'address':"block 121 pasir ris street 11",
-             'householdType': '3-Room',
-             'hour': '2023-06-12 ,14:00',
-             'electricity': 1.5},
-            {'address':"block 121 pasir ris street 11",
-             'householdType': '3-Room',
-             'hour': '2023-06-12 ,15:00',
-             'electricity': 1.6},
-             {'address':"block 121 pasir ris street 11",
-             'householdType': '3-Room',
-             'hour': '2023-06-12 ,15:00',
-             'electricity': 1.7}
-        ]
+                list.append({'timestamp':item.timestamp, 'electricity':item.electricusage})
 
         print(list)
 	    
