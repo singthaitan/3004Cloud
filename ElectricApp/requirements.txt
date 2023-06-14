@@ -6,3 +6,4 @@ python-dotenv==0.19.2
 google==3.0.0
 grpcio==1.54.2
 grpcio-tools==1.54.2
+flask_session==0.5.0
