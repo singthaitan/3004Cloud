@@ -16,6 +16,33 @@ sns.set_style('white')
 import warnings
 warnings.filterwarnings('ignore')
 
+# Import MongoDB
+import pymongo
+
+# Set up Mongodb Atlas
+myclient = pymongo.MongoClient("mongodb+srv://shawn:shawn@app-cluster.zxcw8od.mongodb.net/")
+mydb = myclient["ElectricityApp"]
+collection = mydb["Household"]
+
+# Get household ID based on household type
+listOfHouseholdID = []
+query = {"household_type": 4}
+cursor = collection.find(query)
+for document in cursor:
+    household_id = document["household_id"]
+    listOfHouseholdID.append(household_id)
+
+# Get all records from listOfHouseholdID in electricity_consumption collection
+collection = mydb["electricity_consumption"]
+query = {"household_id": {"$in": listOfHouseholdID}}
+result = collection.find(query)
+
+for row in result:
+    timestamp = row["timestamp"]
+    electricity_consumption = row["electricity_consumption"]
+    # print("The timestamp is: " + timestamp + "\n" + "The electricity consumption is: " + str(electricity_consumption) + "\n")
+    print(row)
+
 # Load the data from the file 'household_power_consumption.txt' using pandas
 # and specify the delimiter as ';'
 #data = pd.read_csv('household_power_consumption.txt', delimiter=';')
