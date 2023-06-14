@@ -7,9 +7,14 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from proto_files import acc_hougang_pb2
 from proto_files import acc_hougang_pb2_grpc
 import grpc
+from flask_session import Session
+
 
 
 app = Flask(__name__)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 @app.route("/")
 def index():    
@@ -29,7 +34,7 @@ def login():
 
                 response = stub.Login(acc_hougang_pb2.Login_Request(email = email, password = password))
             if response.success == True:
-                return "Login successful"
+                return redirect(url_for('home'))
             else:
                 return "Invalid email or password"
 
@@ -74,25 +79,30 @@ def register():
 def home():
     return render_template('index.html')
 
-# @app.route("/getdata",methods=['GET'])
-# def data():
-#     if request.method == 'GET':
-#         mydb = mysql.connector.connect(
-#             host="localhost",
-#             user="admin",
-#             password="password",
-#             port="3307",
-#             database="hougang_power"
-#         )
 
-#         cursor = mydb.cursor()
-#         cursor.execute("SELECT * FROM Readings")
+@app.route("/getdata",methods=['GET'])
+def data():
+    if request.method == 'GET':
 
-#         allResults = cursor.fetchall()
+        list = [
+            {'address':"block 121 pasir ris street 11",
+             'householdType': '3-Room',
+             'hour': '2023-06-12 ,14:00',
+             'electricity': 1.5},
+            {'address':"block 121 pasir ris street 11",
+             'householdType': '3-Room',
+             'hour': '2023-06-12 ,15:00',
+             'electricity': 1.6},
+             {'address':"block 121 pasir ris street 11",
+             'householdType': '3-Room',
+             'hour': '2023-06-12 ,15:00',
+             'electricity': 1.7}
+        ]
 
+        print(list)
 	    
-#     return jsonify(readings = allResults)
+    return jsonify(list)
 
 
 if __name__ == '__main':
-    app.run()
+    app.run(debug=True)
