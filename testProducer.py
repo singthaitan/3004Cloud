@@ -14,7 +14,7 @@ def household1_thread():
     producer.send(
         topic_name,
         key={"household_id":1},
-        value={"timestamp": str(timestamp), "electricity_consumption":format(random.uniform(2, 200), ".2f")}
+        value={"timestamp": str(timestamp), "electricity_consumption":format(random.uniform(1.776, 393.632), ".2f")}
     )
 
 # Household 2
@@ -27,7 +27,7 @@ def household2_thread():
     producer.send(
         topic_name,
         key={"household_id":2},
-        value={"timestamp": str(timestamp), "electricity_consumption":format(random.uniform(2, 200), ".2f")}
+        value={"timestamp": str(timestamp), "electricity_consumption":format(random.uniform(2.1312, 472.3584), ".2f")}
     )
 
 # Setup
