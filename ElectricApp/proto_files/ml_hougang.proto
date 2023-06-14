@@ -10,7 +10,7 @@ service ml_Hougang {
 }
 
 message UsageData_Request {
-    int64 householdid =1;
+    string householdid =1;
     int32 days = 2;
 }
 
@@ -27,7 +27,7 @@ message UsageData_Reply {
 
 
 message PredictionData_Request  {
-    int64 householdid = 1;
+    string householdid = 1;
     int32 householdtype = 2;
 }
 

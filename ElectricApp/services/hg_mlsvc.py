@@ -9,19 +9,20 @@ from services.hg_config import MONGO_URI
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from datetime import datetime, timedelta
+from bson import ObjectId
 
 
 # Create a new client and connect to the server
 client = MongoClient(MONGO_URI, server_api=ServerApi('1'))
 
 # db = client.get_database()
-db = client["HougangElectric"]
+db = client["Hougang-Electric"]
 collection = db["Electricity"]
 
 class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
 
     def GetUsageData(self, request, context):
-        houshold_id = request.householdid
+        houshold_id = ObjectId(request.householdid)
         days = request.days
 
         # Get current datetime
@@ -33,19 +34,21 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
         # Convert datetime objects to strings
         start_date_str = start_date.strftime("%Y-%m-%d %H:%M:%S")
         timestamp_str = timestamp.strftime("%Y-%m-%d %H:%M:%S")
-
+        print (houshold_id)
         # Query the collection for documents where the timestamp is between start_date_str and timestamp_str
         # Replace "your_timestamp_field" with the field in your collection that holds the timestamp
         results = collection.find({
             "timestamp": {"$gte": start_date_str, "$lt": timestamp_str},
-            "householdid": houshold_id
+            "household_id": houshold_id
         })
+
 
         reply = ml_hougang_pb2.UsageData_Reply()
         for doc in results:
+            print( doc['timestamp'])
             item = ml_hougang_pb2.UsageData()
             item.timestamp = doc['timestamp']
-            item.electricusage = doc['electric_usage']
+            item.electricusage = doc['electricity_consumption']
             reply.items.append(item)
 
         return reply

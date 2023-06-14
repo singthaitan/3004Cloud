@@ -33,8 +33,8 @@ class acc_Hougang(acc_hougang_pb2_grpc.acc_HougangServicer):
             if check_password_hash(user['password'], password):
                 # Password matches, perform login
                 # ... your login logic ...
-                print (user['householdid'])
-                return acc_hougang_pb2.Login_Reply(success=True,householdid = user["householdid"])  # Replace with your desired response
+                print (user['householdID'])
+                return acc_hougang_pb2.Login_Reply(success=True,householdid = str(user["householdID"]))  # Replace with your desired response
 
         # Invalid email or password
         return acc_hougang_pb2.Login_Reply(success=False)  # Replace with your desired response

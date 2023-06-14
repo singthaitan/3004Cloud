@@ -2,8 +2,6 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import grpc
-
 from proto_files import ml_hougang_pb2 as ml__hougang__pb2
 
 

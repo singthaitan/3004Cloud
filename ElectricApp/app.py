@@ -39,6 +39,7 @@ def login():
                 response = stub.Login(acc_hougang_pb2.Login_Request(email = email, password = password))
                 
             if response.success == True:
+                print(response.householdid)
                 session["householdid"] = response.householdid
                 return redirect(url_for('home'))
             else:
