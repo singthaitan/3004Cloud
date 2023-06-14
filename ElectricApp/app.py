@@ -95,4 +95,4 @@ def home():
 
 
 if __name__ == '__main':
-    app.run()
+    create_app().run()
