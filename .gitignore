@@ -3,6 +3,7 @@ ElectricApp/__pycache__/
 ElectricApp/proto_files/__pycache__/
 ElectricApp/services/__pycache__/
 *.py[cod]
+*.pyc
 
 # venv
 env
