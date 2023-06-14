@@ -39,10 +39,12 @@ from sklearn.metrics import mean_absolute_error
 from keras.callbacks import EarlyStopping
 
 
+
 # Import MongoDB
 import pymongo
-import pandas as pd
+# import pandas as pd
 import datetime
+# import numpy as np
 
 def getAllHouseholdID(household_type):
     # Getting all household id and storing it into a dictionary based on household type
@@ -75,18 +77,37 @@ def insertDataFromCsv(filename, listOfID, numberOfData):
 
     timestamp = datetime.datetime(2010, 1, 1)
     numberOfRecordsAdded = 0
-    for i in range(len(listOfElecCons)):
-        if i != 0:
-            timestamp = timestamp + datetime.timedelta(hours=1)
-        mongoData = {"timestamp": str(timestamp),
-                    "electricity_consumption": listOfElecCons[i],
-                    "household_id": listOfID[i % 2]}
-        insert_result = collection.insert_one(mongoData)
-        if(insert_result.acknowledged):
-            print("Successfully inserted into db" + "\n")
-            numberOfRecordsAdded += 1
-        else:
-            print("Failed to store data in db" + "\n")
+    numberOfHouseholds = len(listOfID)
+    startPos = 0
+    sublists = np.array_split(listOfElecCons, numberOfHouseholds)
+    print(sublists)
+    for i in range(len(sublists)):
+        for y in range(len(sublists[i])):
+            print(sublists[i][y])
+            if y != 0:
+                timestamp = timestamp + datetime.timedelta(hours=1)
+            mongoData = {"timestamp": str(timestamp),
+                        "electricity_consumption": sublists[i][y],
+                        "household_id": listOfID[i]}
+            insert_result = collection.insert_one(mongoData)
+            if(insert_result.acknowledged):
+                print("Successfully inserted into db" + "\n")
+                numberOfRecordsAdded += 1
+            else:
+                print("Failed to store data in db" + "\n")
+    # for i in range(len(listOfElecCons)):
+    #     if i != 0:
+    #         timestamp = timestamp + datetime.timedelta(hours=1)
+    #         mongoData = {"timestamp": str(timestamp),
+    #                     "electricity_consumption": listOfElecCons[i],
+    #                     "household_id": listOfID[startPos]}
+    #         insert_result = collection.insert_one(mongoData)
+    #         if(insert_result.acknowledged):
+    #             print("Successfully inserted into db" + "\n")
+    #             numberOfRecordsAdded += 1
+    #         else:
+    #             print("Failed to store data in db" + "\n")
+
 
     print("The total number of records added is: " + str(numberOfRecordsAdded))
 
@@ -122,7 +143,7 @@ for roomNo in range(1, 6):
 # Code below uploads all data from hourly_5_room_dataset.csv into mongodb
 """
 listOfID = getAllHouseholdID("5 Room")
-insertDataFromCsv("hourly_5_room_dataset.csv", listOfID, 1000)
+insertDataFromCsv("hourly_5_room_dataset.csv", listOfID, 10)
 """
 
 
