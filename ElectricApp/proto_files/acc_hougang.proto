@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package acc_hougang;
+
+
+service acc_Hougang {
+    rpc Login (Login_Request) returns (Login_Reply) {}
+    rpc Register (Register_Request) returns (Register_Reply) {}
+
+}
+
+message Login_Request {
+    string email =1;
+    string password = 2;
+}
+
+message Login_Reply {
+    bool success = 1;
+}
+
+message Register_Request  {
+    string first_name = 1;
+    string last_name =2;
+    string email = 3;
+    string password = 4;
+    string region = 5;
+    int32 householdid = 6;
+}
+
+message  Register_Reply {
+    bool success = 1;
+}
+
+
+
+
+

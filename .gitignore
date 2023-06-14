@@ -1,0 +1,12 @@
+# byte-compiled / optimized / DLL files
+ElectricApp/__pycache__/
+ElectricApp/proto_files/__pycache__/
+ElectricApp/services/__pycache__/
+*.py[cod]
+
+# venv
+env
+venv
+
+# database & logs
+.DS_store
