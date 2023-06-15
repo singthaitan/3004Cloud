@@ -1,14 +1,9 @@
 # CSC3004 Cloud and Distributed Computing
 
-## MongoDB connection
-- Create your own config.py (in the same folder as app.py) and have this inside:
-```MONGO_URI = "mongodb+srv://<username>:<password>@app-cluster.zxcw8od.mongodb.net/"```
-Change <username> and <password> to your own mongodb's
-
 ## To run project
 - Create virtualenv folder to install Python dependencies (*Note: python can be python3 or py or python depending on your Python installation): ```python -m venv venv```
 - Run virtualenv (on Windows): ```venv\Scripts\activate```
-- Change directory: ```cd ElectricityWebApp```
+- Change directory: ```cd ElectricApp```
 - Install Python dependencies: ```pip install -r requirements.txt```
 - Run Services through ```python -m services.hg_accsvc``` and ```python -m services.hg_mlsvc```
 - Run application: ```python -m flask run```
