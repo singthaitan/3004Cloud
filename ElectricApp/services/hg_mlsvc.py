@@ -19,6 +19,9 @@ client = MongoClient(MONGO_URI, server_api=ServerApi('1'))
 db = client["Hougang-Electric"]
 collection = db["Electricity"]
 
+db_household = client["Hougang-Users"]
+collection_household = db_household["Household"]
+
 class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
 
     def GetUsageData(self, request, context):
@@ -52,6 +55,37 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
             reply.items.append(item)
 
         return reply
+    
+    def GetPredictionData(self, request, context):
+        print("aaaaaaaaaaa" +request.householdid)
+        houshold_id = ObjectId(request.householdid)
+
+        household = collection_household.find_one({"_id" : houshold_id})
+        print("bbbbbbb" +household["housing_type"])
+
+        reply = ml_hougang_pb2.PredictionData_Reply()
+
+        # We add two sample PredictionDataIndividual items
+        item1 = reply.item.add()
+        item1.timestamp = "2023-06-16 12:00:00"
+        item1.electricusage = 5.0
+
+        item2 = reply.item.add()
+        item2.timestamp = "2023-06-16 13:00:00"
+        item2.electricusage = 6.0
+
+        # We add two sample PredictionDataHouseholdType items
+        item3 = reply.item2.add()
+        item3.timestamp = "2023-06-16 12:00:00"
+        item3.electricusage = 10.0
+
+        item4 = reply.item2.add()
+        item4.timestamp = "2023-06-16 13:00:00"
+        item4.electricusage = 12.0
+
+        return reply
+
+
 
 
 def serve():

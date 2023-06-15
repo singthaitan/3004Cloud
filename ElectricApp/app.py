@@ -99,8 +99,25 @@ def data():
                 list.append({'timestamp':item.timestamp, 'electricity':item.electricusage})
 
         print(list)
+        getprediction()
 	    
     return jsonify(list)
+
+
+def getprediction():
+
+    with grpc.insecure_channel('localhost:50052') as channel:
+            stub = ml_hougang_pb2_grpc.ml_HougangStub(channel)
+            response = stub.GetPredictionData(ml_hougang_pb2.PredictionData_Request(householdid = session["householdid"]))# enter householedtype here
+            list1 = []
+            list2 = []
+            for item in response.item:
+                list1.append({'timestamp': item.timestamp, 'electricity': item.electricusage})
+            for item in response.item2:
+                list2.append({'timestamp': item.timestamp, 'electricity': item.electricusage})
+            
+            print(list1)
+            print(list2)
 
 
 if __name__ == '__main':

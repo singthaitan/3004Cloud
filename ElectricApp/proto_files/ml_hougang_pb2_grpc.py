@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from proto_files import ml_hougang_pb2 as ml__hougang__pb2
+from proto_files import ml_hougang_pb2 as proto__files_dot_ml__hougang__pb2
 
 
 class ml_HougangStub(object):
@@ -16,13 +16,13 @@ class ml_HougangStub(object):
         """
         self.GetUsageData = channel.unary_unary(
                 '/ml_hougang.ml_Hougang/GetUsageData',
-                request_serializer=ml__hougang__pb2.UsageData_Request.SerializeToString,
-                response_deserializer=ml__hougang__pb2.UsageData_Reply.FromString,
+                request_serializer=proto__files_dot_ml__hougang__pb2.UsageData_Request.SerializeToString,
+                response_deserializer=proto__files_dot_ml__hougang__pb2.UsageData_Reply.FromString,
                 )
         self.GetPredictionData = channel.unary_unary(
                 '/ml_hougang.ml_Hougang/GetPredictionData',
-                request_serializer=ml__hougang__pb2.PredictionData_Request.SerializeToString,
-                response_deserializer=ml__hougang__pb2.PredictionData_Reply.FromString,
+                request_serializer=proto__files_dot_ml__hougang__pb2.PredictionData_Request.SerializeToString,
+                response_deserializer=proto__files_dot_ml__hougang__pb2.PredictionData_Reply.FromString,
                 )
 
 
@@ -46,13 +46,13 @@ def add_ml_HougangServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetUsageData': grpc.unary_unary_rpc_method_handler(
                     servicer.GetUsageData,
-                    request_deserializer=ml__hougang__pb2.UsageData_Request.FromString,
-                    response_serializer=ml__hougang__pb2.UsageData_Reply.SerializeToString,
+                    request_deserializer=proto__files_dot_ml__hougang__pb2.UsageData_Request.FromString,
+                    response_serializer=proto__files_dot_ml__hougang__pb2.UsageData_Reply.SerializeToString,
             ),
             'GetPredictionData': grpc.unary_unary_rpc_method_handler(
                     servicer.GetPredictionData,
-                    request_deserializer=ml__hougang__pb2.PredictionData_Request.FromString,
-                    response_serializer=ml__hougang__pb2.PredictionData_Reply.SerializeToString,
+                    request_deserializer=proto__files_dot_ml__hougang__pb2.PredictionData_Request.FromString,
+                    response_serializer=proto__files_dot_ml__hougang__pb2.PredictionData_Reply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -76,8 +76,8 @@ class ml_Hougang(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/ml_hougang.ml_Hougang/GetUsageData',
-            ml__hougang__pb2.UsageData_Request.SerializeToString,
-            ml__hougang__pb2.UsageData_Reply.FromString,
+            proto__files_dot_ml__hougang__pb2.UsageData_Request.SerializeToString,
+            proto__files_dot_ml__hougang__pb2.UsageData_Reply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -93,7 +93,7 @@ class ml_Hougang(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/ml_hougang.ml_Hougang/GetPredictionData',
-            ml__hougang__pb2.PredictionData_Request.SerializeToString,
-            ml__hougang__pb2.PredictionData_Reply.FromString,
+            proto__files_dot_ml__hougang__pb2.PredictionData_Request.SerializeToString,
+            proto__files_dot_ml__hougang__pb2.PredictionData_Reply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

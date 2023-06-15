@@ -28,16 +28,21 @@ message UsageData_Reply {
 
 message PredictionData_Request  {
     string householdid = 1;
-    int32 householdtype = 2;
 }
 
-message PredictionData {
+message PredictionDataIndividual {
+    string timestamp = 1;
+    float electricusage = 2;
+}
+
+message PredictionDataHouseholdType {
     string timestamp = 1;
     float electricusage = 2;
 }
 
 message  PredictionData_Reply {
-    repeated PredictionData items = 1;
+    repeated PredictionDataIndividual item = 1;
+    repeated PredictionDataHouseholdType item2 = 2;
 }
 
 
