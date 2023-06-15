@@ -65,7 +65,7 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
 
         reply = ml_hougang_pb2.PredictionData_Reply()
 
-        # We add two sample PredictionDataIndividual items
+        # prediction item for individual
         item1 = reply.item.add()
         item1.timestamp = "2023-06-16 12:00:00"
         item1.electricusage = 5.0
@@ -74,7 +74,7 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
         item2.timestamp = "2023-06-16 13:00:00"
         item2.electricusage = 6.0
 
-        # We add two sample PredictionDataHouseholdType items
+        # prediction item for housing type
         item3 = reply.item2.add()
         item3.timestamp = "2023-06-16 12:00:00"
         item3.electricusage = 10.0
