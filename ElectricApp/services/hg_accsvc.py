@@ -43,33 +43,29 @@ class acc_Hougang(acc_hougang_pb2_grpc.acc_HougangServicer):
     def Register(self, request, context):
         # Check if the username already exists in the database
         if col_account.find_one({"e-mail address": request.email}):
-
-            return acc_hougang_pb2.Register_Reply(success=False)
+            return acc_hougang_pb2.Register_Reply(success=False, error_type="email")
         else:
             # Hash the password
             hashed_password = generate_password_hash(request.password)
             
             # check if address is correct and exist
             household = col_household.find_one({"street_address": request.address, "postal_code": request.postal, "unit_number": request.unit})
-            if household:
+            if not household:
+                return acc_hougang_pb2.Register_Reply(success=False, error_type="address")
+            else:
                 # Create a new document for the user
                 user = {
                     "first name": request.first_name,
                     "last name": request.last_name,
                     "e-mail address": request.email,
                     "password": hashed_password,
-                    # "street address": address,
-                    # "unit number": unit,
-                    # "postal code": postal,
-                    # "household type": household_type,
-                    # "household size": household_size,
                     "region": request.region,
                     "householdID": household["_id"]
                 }
 
                 # Insert the document into the collection
                 col_account.insert_one(user)
-        return acc_hougang_pb2.Register_Reply(success=True)
+                return acc_hougang_pb2.Register_Reply(success=True)
     
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

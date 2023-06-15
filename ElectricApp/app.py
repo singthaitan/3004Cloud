@@ -61,29 +61,30 @@ def register():
         address = request.form['address']
         unit = request.form['unit']
         postal = request.form['postal']
-        # household_type = request.form['household_type']
-        # household_size = request.form['household_size']
         region = request.form['region']
-        print(region)
-
         if region == "Hougang":
             with grpc.insecure_channel('localhost:50051') as channel:
-                print("aaaaa")
                 stub = acc_hougang_pb2_grpc.acc_HougangStub(channel)
-                response = stub.Register(acc_hougang_pb2.Register_Request(first_name = first_name,
-                                                                          last_name = last_name,
-                                                                          email = email, 
-                                                                          password = password,
-                                                                          region = region, 
-                                                                          address = address,
-                                                                          unit = unit,
-                                                                          postal = postal))
-                print(response.success)
-                
+                response = stub.Register(acc_hougang_pb2.Register_Request(
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email,
+                    password=password,
+                    region=region,
+                    address=address,
+                    unit=unit,
+                    postal=postal
+                ))
 
+                if response.success == False:
+                    if response.error_type == "email":
+                        flash('E-mail address already exists. Please login instead.', 'error')
+                    elif response.error_type == "address":
+                        flash('Address not found, please check Street Address, Unit Number and Postal Code', 'error')
+                else:
+                    flash('Account registered successfully!', 'success')
 
-            # Redirect to the login page
-            return redirect('/login')
+        return render_template('register.html')
     
 @app.route("/home")
 def home():
@@ -91,7 +92,7 @@ def home():
 
 
 
-#ML GET  DAY DATA /GET HOUSEID FROM HOUSEHOLD TABLE 
+#ML GET DAY DATA / HOUSEID FROM HOUSEHOLD TABLE 
 @app.route("/getdata",methods=['GET'])
 def data():
     list = []
