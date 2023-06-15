@@ -7,6 +7,54 @@ import numpy as np
 # Import MinMaxScaler from sklearn
 from sklearn.preprocessing import MinMaxScaler
 
+# Import MongoDB
+import pymongo
+
+# Getting all household id and storing it into a dictionary based on household type
+def getAllHouseholdID(household_type):
+    # Create an empty dictionary that stores each room type household ids
+    roomTypeDict = {"1 Room": [],
+                "2 Room": [],
+                "3 Room": [],
+                "4 Room": [],
+                "5 Room": [],}
+    
+    # Query from Household collection
+    mydb = myclient["Hougang-Users"]
+    collection = mydb["Household"]
+    query = {}
+    result = collection.find(query)
+    for row in result:
+        id = row["_id"]
+        housing_type = row["housing_type"]
+        roomTypeDict[housing_type].append(id)
+
+    listOfID = roomTypeDict[household_type]
+    return listOfID
+
+# Set up Mongodb Atlas
+myclient = pymongo.MongoClient("mongodb+srv://shawn:shawn@app-cluster.zxcw8od.mongodb.net/")
+mydb = myclient["Hougang-Users"]
+collection = mydb["Household"]
+
+# Get household ID based on household type
+listOfHouseholdID = getAllHouseholdID("5 Room")
+dataset = []
+
+# Get all records from listOfHouseholdID in Electricity collection
+mydb = myclient["Hougang-Electric"]
+collection = mydb["Electricity"]
+query = {"household_id": {"$in": listOfHouseholdID}}
+result = collection.find(query)
+
+# Print records retrieved from database based from household type
+for row in result:
+    timestamp = row["timestamp"]
+    electricity_consumption = row["electricity_consumption"]
+    # print("The timestamp is: " + timestamp + "\n" + "The electricity consumption is: " + str(electricity_consumption) + "\n")
+    # print(row)
+
+
 for i in range(5):
     
     file_name = f"hourly_{i+1}_room_dataset.csv"
