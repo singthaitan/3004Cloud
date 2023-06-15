@@ -1,64 +1,72 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}">
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <title>
-            WattWise
-        </title>
-    </head>
-    <body> 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul class="flash-messages">
-                {% for message in messages %}
-                    <li class="{{ message }}">{{ message }}</li>
-                {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-        <form id="register-form" role="form" method="post" action="" style="border:1px solid #ccc">
-            <div class="container">
-                <h1>Register</h1>
-                <p>Please fill in this form to create an account.</p>
-                <hr>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='popupmsg.css') }}">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>WattWise</title>
+</head>
+<body> 
+    <form id="register-form" role="form" method="post" action="" style="border:1px solid #ccc">
+        <div class="container">
+            <h1>Register</h1>
+            <p>Please fill in this form to create an account.</p>
+            <hr>
 
-                <label for="first_name"><b>First Name</b></label>
-                <input type="text" placeholder="Enter First Name" name="first_name" required>
+            <label for="first_name"><b>First Name</b></label>
+            <input type="text" placeholder="Enter First Name" name="first_name" required>
 
-                <label for="last_name"><b>Last Name</b></label>
-                <input type="text" placeholder="Enter Enter Last Name" name="last_name" required>
+            <label for="last_name"><b>Last Name</b></label>
+            <input type="text" placeholder="Enter Last Name" name="last_name" required>
 
-                <label for="email"><b>Email</b></label>
-                <input type="email" placeholder="Enter Email" name="email" required>
+            <label for="email"><b>Email</b></label>
+            <input type="email" placeholder="Enter Email" name="email" required>
 
-                <label for="password"><b>Password</b></label>
-                <input type="password" placeholder="Enter Password" name="password" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$" required>
-                <small title="Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one digit.">requirements</small>
+            <label for="password"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" name="password" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$" required>
 
-                <label for="address"><b>Street Address</b></label>
-                <input type="text" placeholder="Enter Street Address" name="address" required>
+            <label for="address"><b>Street Address</b></label>
+            <input type="text" placeholder="Enter Street Address" name="address" required>
 
-                <label for="unit"><b>Unit Number</b></label>
-                <input type="text" placeholder="Enter Unit Number" name="unit" pattern="^#(\d+-\d+|)$" required>
+            <label for="unit"><b>Unit Number</b></label>
+            <input type="text" placeholder="Enter Unit Number" name="unit" pattern="^#(\d+-\d+|)$" required>
 
-                <label for="postal"><b>Postal Code</b></label>
-                <input type="text" name="postal" pattern="[0-9]{6}" placeholder="Enter postal code" required>
-                                
-                <label for="region"><b>Region</b></label>
-                <select name="region">
-                    <option value="AngMoKio">Ang Mo Kio</option>
-                    <option value="Hougang">Hougang</option>
-                    <option value="Jurong">Jurong</option>
-                </select>
-                  
-                <p>By creating an account you agree to our <a href="#" style="color:dodgerblue">Terms & Privacy</a>.</p>
+            <label for="postal"><b>Postal Code</b></label>
+            <input type="text" name="postal" pattern="[0-9]{6}" placeholder="Enter postal code" required>
+                            
+            <label for="region"><b>Region</b></label>
+            <select name="region">
+                <option value="AngMoKio">Ang Mo Kio</option>
+                <option value="Hougang">Hougang</option>
+                <option value="Jurong">Jurong</option>
+            </select>
+              
+            <p>By creating an account you agree to our <a href="#" style="color:dodgerblue">Terms & Privacy</a>.</p>
 
-                <div class="clearfix">
-                    <button type="submit" class="signupbtn">Register</button>
-                </div>
+            <div class="clearfix">
+                <button type="submit" class="signupbtn">Register</button>
             </div>
-        </form>
-    </body>
+        </div>
+    </form>
+
+    <script>
+        // Retrieve the flashed messages from the server-side rendered HTML
+        var messages = JSON.parse('{{ get_flashed_messages() | tojson | safe }}');
+
+        // Display each flashed message as a toast
+        messages.forEach(function(message) {
+            console.log("Toast message:", message);
+            Toastify({
+                text: message,
+                duration: 3000, // 3 seconds
+                close: false,
+                gravity: "top",
+                position: "center",
+            }).showToast();
+        });
+    </script>
+</body>
 </html>

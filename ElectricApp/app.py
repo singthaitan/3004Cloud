@@ -1,52 +1,46 @@
-# import flask
-# from flask import request, redirect, render_template, url_for
 from flask import *
-from pymongo import MongoClient
-# from config import MONGO_URI
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
+from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
+
+import grpc
 from proto_files import acc_hougang_pb2
 from proto_files import acc_hougang_pb2_grpc
 from proto_files import ml_hougang_pb2
 from proto_files import ml_hougang_pb2_grpc
-import grpc
-from flask_session import Session
-
-
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+
 @app.route("/")
 def index():    
     return redirect(url_for('login'))
-    
+ 
+
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
         return render_template('login.html')
     elif request.method == 'POST':
-        email = request.form['email']
+        email = request.form['email'].lower()
         password = request.form['password']
         region = request.form["region"]
-        if region == "hougang":
+        if region == "Hougang":
             with grpc.insecure_channel('localhost:50051') as channel:
                 stub = acc_hougang_pb2_grpc.acc_HougangStub(channel)
-
-                response = stub.Login(acc_hougang_pb2.Login_Request(email = email, password = password))
+                response = stub.Login(acc_hougang_pb2.Login_Request(email=email, password=password))
                 
-            if response.success == True:
-                print(response.householdid)
+            if response.success:
                 session["householdid"] = response.householdid
                 return redirect(url_for('home'))
             else:
-                return "Invalid email or password"
-
-
-    return render_template('login.html')
+                flash('Login failed. Check login credentials.', 'error')
+                return render_template('login.html')
+        else:
+            flash('Invalid region selected.', 'error')
+            return render_template('login.html')
 
 
 @app.route('/register', methods=['GET','POST'])
@@ -54,11 +48,11 @@ def register():
     if request.method == 'GET':
         return render_template('register.html')
     elif request.method == 'POST':
-        first_name = request.form['first_name']
-        last_name = request.form['last_name']
-        email = request.form['email']
+        first_name = request.form['first_name'].lower()
+        last_name = request.form['last_name'].lower()
+        email = request.form['email'].lower()
         password = request.form['password']
-        address = request.form['address']
+        address = request.form['address'].lower()
         unit = request.form['unit']
         postal = request.form['postal']
         region = request.form['region']
@@ -83,13 +77,13 @@ def register():
                         flash('Address not found, please check Street Address, Unit Number and Postal Code', 'error')
                 else:
                     flash('Account registered successfully!', 'success')
-
+                    
         return render_template('register.html')
-    
+
+
 @app.route("/home")
 def home():
     return render_template('index.html')
-
 
 
 #ML GET DAY DATA / HOUSEID FROM HOUSEHOLD TABLE 
