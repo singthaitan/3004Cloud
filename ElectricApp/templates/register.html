@@ -31,16 +31,17 @@
                 <input type="text" placeholder="Enter Enter Last Name" name="last_name" required>
 
                 <label for="email"><b>Email</b></label>
-                <input type="text" placeholder="Enter Email" name="email" required>
+                <input type="email" placeholder="Enter Email" name="email" required>
 
                 <label for="password"><b>Password</b></label>
-                <input type="password" placeholder="Enter Password" name="password" required>
+                <input type="password" placeholder="Enter Password" name="password" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$" required>
+                <small title="Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one digit.">requirements</small>
 
                 <label for="address"><b>Street Address</b></label>
                 <input type="text" placeholder="Enter Street Address" name="address" required>
 
                 <label for="unit"><b>Unit Number</b></label>
-                <input type="text" placeholder="Enter Unit Number" name="unit" required>
+                <input type="text" placeholder="Enter Unit Number" name="unit" pattern="^#(\d+-\d+|)$" required>
 
                 <label for="postal"><b>Postal Code</b></label>
                 <input type="text" name="postal" pattern="[0-9]{6}" placeholder="Enter postal code" required>
