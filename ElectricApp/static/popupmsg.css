@@ -1,0 +1,25 @@
+.toastify {
+    font-family: Arial, sans-serif;
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.15);
+  }
+  
+  .toastify.toastify-success {
+    background-color: #4caf50;
+  }
+  
+  .toastify.toastify-error {
+    background-color: #f44336;
+  }
+  
+  .toastify.toastify-warning {
+    background-color: #ff9800;
+  }
+  
+  .toastify.toastify-info {
+    background-color: #2196f3;
+  }
+  
