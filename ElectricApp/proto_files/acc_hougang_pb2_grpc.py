@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from proto_files import acc_hougang_pb2 as acc__hougang__pb2
+import proto_files.acc_hougang_pb2 as acc__hougang__pb2
 
 
 class acc_HougangStub(object):

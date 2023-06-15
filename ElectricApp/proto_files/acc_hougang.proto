@@ -33,6 +33,7 @@ message Register_Request  {
 
 message  Register_Reply {
     bool success = 1;
+    string error_type =2;
 }
 
 
