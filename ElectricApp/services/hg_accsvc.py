@@ -10,6 +10,8 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from werkzeug.security import check_password_hash, generate_password_hash
 
+import re
+
 # Create a new client and connect to the server
 client = MongoClient(MONGO_URI, server_api=ServerApi('1'))
 
@@ -49,7 +51,15 @@ class acc_Hougang(acc_hougang_pb2_grpc.acc_HougangServicer):
             hashed_password = generate_password_hash(request.password)
             
             # check if address is correct and exist
-            household = col_household.find_one({"street_address": request.address, "postal_code": request.postal, "unit_number": request.unit})
+            # postal_code and unit number must be exactly same
+            # street_address can be partial / incomplete and case insensitive
+            street_address_pattern = re.sub(r'[^a-zA-Z0-9]+', r'.*', request.address)
+            household = col_household.find_one({
+                "street_address": {"$regex": f".*{street_address_pattern}.*", "$options": "i"},
+                "postal_code": request.postal,
+                "unit_number": request.unit
+            })
+
             if not household:
                 return acc_hougang_pb2.Register_Reply(success=False, error_type="address")
             else:
