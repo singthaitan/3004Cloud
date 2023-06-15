@@ -10,7 +10,7 @@ Change <username> and <password> to your own mongodb's
 - Run virtualenv (on Windows): ```venv\Scripts\activate```
 - Change directory: ```cd ElectricityWebApp```
 - Install Python dependencies: ```pip install -r requirements.txt```
-- Run Services through ```python -m services.hg_accsvc```
+- Run Services through ```python -m services.hg_accsvc``` and ```python -m services.hg_mlsvc```
 - Run application: ```python -m flask run```
 - Open browser at: ```http://127.0.0.1:5000```
 - Login with test credentials: ```user: test@gmail.com | password: Pass```

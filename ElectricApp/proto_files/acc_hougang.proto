@@ -16,6 +16,7 @@ message Login_Request {
 
 message Login_Reply {
     bool success = 1;
+    string householdid = 2; 
 }
 
 message Register_Request  {
@@ -24,7 +25,10 @@ message Register_Request  {
     string email = 3;
     string password = 4;
     string region = 5;
-    int32 householdid = 6;
+    string address = 6;
+    string unit = 7;
+    string postal = 8;
+    string householdID = 9;
 }
 
 message  Register_Reply {

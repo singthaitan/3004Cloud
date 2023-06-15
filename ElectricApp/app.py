@@ -1,3 +1,5 @@
+# import flask
+# from flask import request, redirect, render_template, url_for
 from flask import *
 from pymongo import MongoClient
 # from config import MONGO_URI
@@ -6,10 +8,17 @@ from pymongo.server_api import ServerApi
 from werkzeug.security import check_password_hash, generate_password_hash
 from proto_files import acc_hougang_pb2
 from proto_files import acc_hougang_pb2_grpc
+from proto_files import ml_hougang_pb2
+from proto_files import ml_hougang_pb2_grpc
 import grpc
+from flask_session import Session
+
 
 
 app = Flask(__name__)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 @app.route("/")
 def index():    
@@ -28,8 +37,11 @@ def login():
                 stub = acc_hougang_pb2_grpc.acc_HougangStub(channel)
 
                 response = stub.Login(acc_hougang_pb2.Login_Request(email = email, password = password))
+                
             if response.success == True:
-                return "Login successful"
+                print(response.householdid)
+                session["householdid"] = response.householdid
+                return redirect(url_for('home'))
             else:
                 return "Invalid email or password"
 
@@ -46,9 +58,9 @@ def register():
         last_name = request.form['last_name']
         email = request.form['email']
         password = request.form['password']
-        # address = request.form['address']
-        # unit = request.form['unit']
-        # postal = request.form['postal']
+        address = request.form['address']
+        unit = request.form['unit']
+        postal = request.form['postal']
         # household_type = request.form['household_type']
         # household_size = request.form['household_size']
         region = request.form['region']
@@ -62,7 +74,10 @@ def register():
                                                                           last_name = last_name,
                                                                           email = email, 
                                                                           password = password,
-                                                                          region = region))
+                                                                          region = region, 
+                                                                          address = address,
+                                                                          unit = unit,
+                                                                          postal = postal))
                 print(response.success)
                 
 
@@ -74,25 +89,24 @@ def register():
 def home():
     return render_template('index.html')
 
-# @app.route("/getdata",methods=['GET'])
-# def data():
-#     if request.method == 'GET':
-#         mydb = mysql.connector.connect(
-#             host="localhost",
-#             user="admin",
-#             password="password",
-#             port="3307",
-#             database="hougang_power"
-#         )
 
-#         cursor = mydb.cursor()
-#         cursor.execute("SELECT * FROM Readings")
 
-#         allResults = cursor.fetchall()
+#ML GET  DAY DATA /GET HOUSEID FROM HOUSEHOLD TABLE 
+@app.route("/getdata",methods=['GET'])
+def data():
+    list = []
+    if request.method == 'GET':
+        with grpc.insecure_channel('localhost:50052') as channel:
+            stub = ml_hougang_pb2_grpc.ml_HougangStub(channel)
+            response = stub.GetUsageData(ml_hougang_pb2.UsageData_Request(householdid = session["householdid"],
+                                                                          days = 8))
+            for item in response.items:
+                list.append({'timestamp':item.timestamp, 'electricity':item.electricusage})
 
+        print(list)
 	    
-#     return jsonify(readings = allResults)
+    return jsonify(list)
 
 
 if __name__ == '__main':
-    create_app().run()
+    app.run(debug=True)
