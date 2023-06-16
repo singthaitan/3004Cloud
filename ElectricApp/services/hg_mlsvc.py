@@ -15,6 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow import keras
+import os
 
 
 # Create a new client and connect to the server
@@ -68,9 +69,23 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
         #for housing type
         household = collection_household.find_one({"_id" : household_id})
         print("bbbbbbb" +household["housing_type"])
-        #householdprediction = getElectricityPredictions(household["housing_type"])
+        householdprediction = getElectricityPredictions(household["housing_type"])
 
-        #print(householdprediction)
+        print(householdprediction)
+
+        # The current time, rounded to the next hour
+        current_time = datetime.now()
+        minutes_past = current_time.minute if current_time.minute != 0 else 60
+        current_time += timedelta(minutes=minutes_past)
+
+        reply = ml_hougang_pb2.PredictionData_Reply()
+
+        for i in range(24):  # for the next 24 hours
+            item = reply.item2.add()
+            item.timestamp = (current_time + timedelta(hours=i)).strftime("%Y-%m-%d %H:%M:%S")
+            item.electricusage = householdprediction[i]
+        
+
 
         # # Query past 30 days data of the given household
         # pipeline = [
@@ -108,11 +123,6 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
 
         # return reply
 
-
-
-
-        reply = ml_hougang_pb2.PredictionData_Reply()
-
         # prediction item for individual
         item1 = reply.item.add()
         item1.timestamp = "2023-06-16 12:00:00"
@@ -122,14 +132,14 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
         item2.timestamp = "2023-06-16 13:00:00"
         item2.electricusage = 6.0
 
-        # prediction item for housing type
-        item3 = reply.item2.add()
-        item3.timestamp = "2023-06-16 12:00:00"
-        item3.electricusage = 10.0
+        # # prediction item for housing type
+        # item3 = reply.item2.add()
+        # item3.timestamp = "2023-06-16 12:00:00"
+        # item3.electricusage = 10.0
 
-        item4 = reply.item2.add()
-        item4.timestamp = "2023-06-16 13:00:00"
-        item4.electricusage = 12.0
+        # item4 = reply.item2.add()
+        # item4.timestamp = "2023-06-16 13:00:00"
+        # item4.electricusage = 12.0
 
         return reply
 
@@ -168,7 +178,12 @@ def getElectricityPredictions(household_type):
     dataset['electricity_consumption'] = pd.to_numeric(dataset['electricity_consumption'], errors='coerce')
     dataset = dataset['electricity_consumption'].tolist()
 
-    model_name = f"{household_type.lower().replace(' ', '_')}_model.h5"
+    # Load the model based on household_type
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    models_dir = os.path.join(os.path.dirname(current_dir), "models")
+    model_name = os.path.join(models_dir, f"{household_type.lower().replace(' ', '_')}_model.h5")
+    model = keras.models.load_model(model_name)
+
     model = keras.models.load_model(model_name)
 
     # Reshape the numpy array into a 2D array with 1 column
