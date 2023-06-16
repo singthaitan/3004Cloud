@@ -55,20 +55,6 @@ dataset = df.tail(73)
 dataset['electricity_consumption'] = pd.to_numeric(dataset['electricity_consumption'], errors='coerce')
 dataset = dataset['electricity_consumption'].tolist()
 
-'''
-# Print records retrieved from database based from household type
-for row in result:
-    timestamp = row["timestamp"]
-    electricity_consumption = row["electricity_consumption"]
-    #print("The timestamp is: " + timestamp + "\n" + "The electricity consumption is: " + str(electricity_consumption) + "\n")
-    #print(row)
-
-    row['electricity_consumption'] = pd.to_numeric(row['electricity_consumption'], errors='coerce')
-
-    dataset.append(row["electricity_consumption"])
-
-'''
-
 model_name = f"1_room_model.h5"
 model = keras.models.load_model(model_name)
 
@@ -80,11 +66,6 @@ scaler = MinMaxScaler(feature_range=(0, 1))
 
 #Fit the MinMaxScaler to the transformed data and transform the values
 dataset = scaler.fit_transform(dataset)
-
-#Split the transformed data into a training set (80%) and a test set (20%)
-#train_size = int(len(dataset) * 0.80)
-#test_size = len(dataset) - train_size
-#train, test = dataset[0:train_size,:], dataset[train_size:len(dataset),:]
 
 # convert an array of values into a dataset matrix
 def create_dataset(dataset, look_back=48):
