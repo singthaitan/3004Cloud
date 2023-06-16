@@ -1,6 +1,7 @@
 from kafka import KafkaConsumer, TopicPartition
 import json
 import pymongo
+from bson import ObjectId
 
 # Setup for kafka
 hostname = "localhost"
@@ -44,12 +45,12 @@ for message in consumer:
     value = message.value
     hour = value['timestamp']
     electricity_consumption = value['electricity_consumption']
-    print(str(message.partition) + ":" + str(message.offset) + ":" + " k=" + str(message.key)
+    print(str(message.partition) + ":" + str(message.offset) + ":" + " k=" + str(message.key['household_id']['$oid'])
           + " v=" + str(value))
     
     # Combine the household id into value variable
     mongoData = value.copy()
-    mongoData.update(message.key)
+    mongoData.update({"household_id": ObjectId(message.key['household_id']['$oid'])})
 
     # Insert into mongodb collection
     insert_result = collection.insert_one(mongoData)
