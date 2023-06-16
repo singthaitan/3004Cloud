@@ -13,6 +13,8 @@ from bson import ObjectId
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
+from tensorflow import keras
 
 
 # Create a new client and connect to the server
@@ -64,45 +66,48 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
         household_id = ObjectId(request.householdid)
 
         #for housing type
-        # household = collection_household.find_one({"_id" : household_id})
-        # print("bbbbbbb" +household["housing_type"])
+        household = collection_household.find_one({"_id" : household_id})
+        print("bbbbbbb" +household["housing_type"])
+        #householdprediction = getElectricityPredictions(household["housing_type"])
 
-        # Query past 30 days data of the given household
-        pipeline = [
-            {"$match": {"household_id": household_id}},
-            {"$sort": {"timestamp": -1}},  # sort by timestamp in descending order
-            {"$limit": 24*30}  # get the past 30 days data
-        ]
-        data = list(collection.aggregate(pipeline))
+        #print(householdprediction)
 
-        # Convert the data to pandas DataFrame
-        df = pd.DataFrame(data)
+        # # Query past 30 days data of the given household
+        # pipeline = [
+        #     {"$match": {"household_id": household_id}},
+        #     {"$sort": {"timestamp": -1}},  # sort by timestamp in descending order
+        #     {"$limit": 24*30}  # get the past 30 days data
+        # ]
+        # data = list(collection.aggregate(pipeline))
 
-        # Convert the 'timestamp' column to datetime type
-        df['timestamp'] = pd.to_datetime(df['timestamp'])
+        # # Convert the data to pandas DataFrame
+        # df = pd.DataFrame(data)
 
-        # Set 'timestamp' as the index of the dataframe
-        df.set_index('timestamp', inplace=True)
+        # # Convert the 'timestamp' column to datetime type
+        # df['timestamp'] = pd.to_datetime(df['timestamp'])
 
-        # Calculate moving average over a 30-day period for each hour
-        hourly_avg = df.groupby(df.index.hour).mean()
-        hourly_avg = hourly_avg.reindex(range(0, 24), fill_value=0)
+        # # Set 'timestamp' as the index of the dataframe
+        # df.set_index('timestamp', inplace=True)
 
-        reply = ml_hougang_pb2.PredictionData_Reply()
-        current_hour = datetime.now().hour
+        # # Calculate moving average over a 30-day period for each hour
+        # hourly_avg = df.groupby(df.index.hour).mean()
+        # hourly_avg = hourly_avg.reindex(range(0, 24), fill_value=0)
 
-        # Add prediction items for the next 24 hours based on the hourly average
-        for i in range(24):
-            next_hour = (current_hour + i) % 24
-            next_timestamp = (datetime.now() + timedelta(hours=i)).strftime("%Y-%m-%d %H:00:00")
+        # reply = ml_hougang_pb2.PredictionData_Reply()
+        # current_hour = datetime.now().hour
 
-            # prediction item for individual
-            item = reply.item.add()
-            item.timestamp = next_timestamp
-            item.electricusage = float(hourly_avg.loc[next_hour, 'electricity_consumption'])
+        # # Add prediction items for the next 24 hours based on the hourly average
+        # for i in range(24):
+        #     next_hour = (current_hour + i) % 24
+        #     next_timestamp = (datetime.now() + timedelta(hours=i)).strftime("%Y-%m-%d %H:00:00")
 
-        
-        return reply
+        #     # prediction item for individual
+        #     item = reply.item.add()
+        #     item.timestamp = next_timestamp
+        #     item.electricusage = float(hourly_avg.loc[next_hour, 'electricity_consumption'])
+
+        # return reply
+
 
 
 
@@ -129,6 +134,78 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
         return reply
 
 
+
+
+def getElectricityPredictions(household_type):
+    def getAllHouseholdID(household_type):
+        # Create an empty dictionary that stores each room type household ids
+        roomTypeDict = {"1 Room": [], "2 Room": [], "3 Room": [], "4 Room": [], "5 Room": []}
+
+        # Query from Household collection
+
+        query = {}
+        result = collection_household.find(query)
+        for row in result:
+            id = row["_id"]
+            housing_type = row["housing_type"]
+            roomTypeDict[housing_type].append(id)
+
+        listOfID = roomTypeDict[household_type]
+        return listOfID
+
+
+
+    # Get household ID based on household type
+    listOfHouseholdID = getAllHouseholdID(household_type)
+    dataset = []
+    predictions = []
+
+    # Get all records from listOfHouseholdID in Electricity collection
+    query = {"household_id": {"$in": listOfHouseholdID}}
+    result = collection.find(query)
+    df = pd.DataFrame(list(result))
+    dataset = df.tail(73)
+    dataset['electricity_consumption'] = pd.to_numeric(dataset['electricity_consumption'], errors='coerce')
+    dataset = dataset['electricity_consumption'].tolist()
+
+    model_name = f"{household_type.lower().replace(' ', '_')}_model.h5"
+    model = keras.models.load_model(model_name)
+
+    # Reshape the numpy array into a 2D array with 1 column
+    dataset = np.reshape(dataset, (-1, 1))
+
+    # Create an instance of the MinMaxScaler class to scale the values between 0 and 1
+    scaler = MinMaxScaler(feature_range=(0, 1))
+
+    # Fit the MinMaxScaler to the transformed data and transform the values
+    dataset = scaler.fit_transform(dataset)
+
+    # convert an array of values into a dataset matrix
+    def create_dataset(dataset, look_back=48):
+        X = []
+        for i in range(len(dataset) - look_back - 1):
+            a = dataset[i:(i + look_back), 0]
+            X.append(a)
+        return np.array(X)
+
+    # reshape into X=t and Y=t+1
+    look_back = 48
+    X_test = create_dataset(dataset, look_back)
+
+    # reshape input to be [samples, time steps, features]
+    X_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))
+
+    # make predictions
+    test_predict = model.predict(X_test)
+
+    # invert predictions
+    test_predict = scaler.inverse_transform(test_predict)
+
+    for i in range(24):
+        prediction = test_predict[i, 0]
+        predictions.append(prediction)
+
+    return predictions
 
 
 def serve():
