@@ -108,7 +108,7 @@ producer = KafkaProducer(
 # Start both household threads and send them concurrently
 household1Count1 = 0
 chosenID1 = 0
-thread1 = threading.Thread(target=household_thread("3 Room", household1Count1, chosenID1))
+thread1 = threading.Thread(target=household_thread("1 Room", household1Count1, chosenID1))
 thread1.start()
 
 household1Count2 = 0

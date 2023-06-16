@@ -18,7 +18,7 @@ group_id = "firstConsumer"
 # Mongodb Atlas
 myclient = pymongo.MongoClient("mongodb+srv://shawn:shawn@app-cluster.zxcw8od.mongodb.net/")
 mydb = myclient["Hougang-Electric"]
-collection = mydb["test_elec"]
+collection = mydb["query_elec"]
 
 
 # Create consumer
