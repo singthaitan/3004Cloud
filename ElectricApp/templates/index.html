@@ -238,18 +238,19 @@
 	</body>
 
 	<script type="text/javascript" charset="utf-8">
-		
+		//Chart 1
 		var dateTime;
 		var powerConsumption;
 
+		//Chart 2
+		var dateTime2;
 		var ownPrediction;
 
+		//Chart 3
+		var dateTime3;
 		var householdTypePrediction;
 
 		var lastestData = [];
-
-		var dateTime1 = [];
-		var powerConsumption1 = [];
 
 
 		//JQuery to get data from flask API
@@ -273,12 +274,8 @@
 					});
 					chart.update();
 
-					// dateTime1.push(data[i].timestamp);
-					// powerConsumption1.push(data[i].electricity);
-
 				}
 				
-				console.log("date: " + dateTime1)
 				lastestData.push(data[0].electricity);
 
 			});
@@ -290,15 +287,14 @@
 
 				for (let j in ownUsage){
 					ownPrediction = ownUsage[j].electricity;
-					householdTypePrediction = regionHouseholdUsage[j].electricity;
 
-					dateTime = ownUsage[j].timestamp;
+					dateTime2 = ownUsage[j].timestamp;
 					// console.log("Own Prediction: " + ownPrediction);
 
 					$('#readings').val($('#readings').val() + dateTime +": "+ownPrediction+"\n");
 					$('#readings').scrollTop($('#readings').scrollHeight);
 
-					chart2.data.labels.push(dateTime);
+					chart2.data.labels.push(dateTime2);
 					chart2.data.datasets.forEach((dataset) => {
 						dataset.data.push(ownPrediction);
 						//dataset.data.push(householdTypePrediction);
@@ -312,13 +308,13 @@
 
 				for (let k in regionHouseholdUsage){
 					householdTypePrediction = regionHouseholdUsage[k].electricity;
-					dateTime = regionHouseholdUsage[k].timestamp;
+					dateTime3 = regionHouseholdUsage[k].timestamp;
 					// console.log("HouseHold: " + householdTypePrediction);
 
 					$('#readings').val($('#readings').val() + dateTime +": "+householdTypePrediction+"\n");
 					$('#readings').scrollTop($('#readings').scrollHeight);
 
-					chart3.data.labels.push(dateTime);
+					chart3.data.labels.push(dateTime3);
 					chart3.data.datasets.forEach((dataset) => {
 						dataset.data.push(householdTypePrediction);
 					});
@@ -385,7 +381,7 @@
 				lineTension: 0,
 				backgroundColor: "rgba(0,255,0,1.0)",
 				borderColor: "rgba(0,0,255,1.0)",
-				data: [dateTime]
+				data: [dateTime2]
 			}]
 		},
 		options: {
@@ -405,13 +401,13 @@
 		var chart3 = new Chart(ctx3, {
 		type: "line",
 		data: {
-			labels: [ownPrediction],
+			labels: [householdTypePrediction],
 			datasets: [{
 				fill: false,
 				lineTension: 0,
 				backgroundColor: "rgba(0,255,0,1.0)",
 				borderColor: "rgba(0,0,255,1.0)",
-				data: [dateTime]
+				data: [dateTime3]
 			}]
 		},
 		options: {
