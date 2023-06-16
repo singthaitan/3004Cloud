@@ -10,6 +10,9 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from datetime import datetime, timedelta
 from bson import ObjectId
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 # Create a new client and connect to the server
@@ -58,10 +61,50 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
     
     def GetPredictionData(self, request, context):
         print("aaaaaaaaaaa" +request.householdid)
-        houshold_id = ObjectId(request.householdid)
+        household_id = ObjectId(request.householdid)
 
-        household = collection_household.find_one({"_id" : houshold_id})
-        print("bbbbbbb" +household["housing_type"])
+        #for housing type
+        # household = collection_household.find_one({"_id" : household_id})
+        # print("bbbbbbb" +household["housing_type"])
+
+        # Query past 30 days data of the given household
+        pipeline = [
+            {"$match": {"household_id": household_id}},
+            {"$sort": {"timestamp": -1}},  # sort by timestamp in descending order
+            {"$limit": 24*30}  # get the past 30 days data
+        ]
+        data = list(collection.aggregate(pipeline))
+
+        # Convert the data to pandas DataFrame
+        df = pd.DataFrame(data)
+
+        # Convert the 'timestamp' column to datetime type
+        df['timestamp'] = pd.to_datetime(df['timestamp'])
+
+        # Set 'timestamp' as the index of the dataframe
+        df.set_index('timestamp', inplace=True)
+
+        # Calculate moving average over a 30-day period for each hour
+        hourly_avg = df.groupby(df.index.hour).mean()
+        hourly_avg = hourly_avg.reindex(range(0, 24), fill_value=0)
+
+        reply = ml_hougang_pb2.PredictionData_Reply()
+        current_hour = datetime.now().hour
+
+        # Add prediction items for the next 24 hours based on the hourly average
+        for i in range(24):
+            next_hour = (current_hour + i) % 24
+            next_timestamp = (datetime.now() + timedelta(hours=i)).strftime("%Y-%m-%d %H:00:00")
+
+            # prediction item for individual
+            item = reply.item.add()
+            item.timestamp = next_timestamp
+            item.electricusage = float(hourly_avg.loc[next_hour, 'electricity_consumption'])
+
+        
+        return reply
+
+
 
         reply = ml_hougang_pb2.PredictionData_Reply()
 
