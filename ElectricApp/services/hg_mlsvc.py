@@ -87,41 +87,41 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
         
 
 
-        # # Query past 30 days data of the given household
-        # pipeline = [
-        #     {"$match": {"household_id": household_id}},
-        #     {"$sort": {"timestamp": -1}},  # sort by timestamp in descending order
-        #     {"$limit": 24*30}  # get the past 30 days data
-        # ]
-        # data = list(collection.aggregate(pipeline))
+        # Query past 30 days data of the given household
+        pipeline = [
+            {"$match": {"household_id": household_id}},
+            {"$sort": {"timestamp": -1}},  # sort by timestamp in descending order
+            {"$limit": 24*30}  # get the past 30 days data
+        ]
+        data = list(collection.aggregate(pipeline))
 
-        # # Convert the data to pandas DataFrame
-        # df = pd.DataFrame(data)
+        # Convert the data to pandas DataFrame
+        df = pd.DataFrame(data)
 
-        # # Convert the 'timestamp' column to datetime type
-        # df['timestamp'] = pd.to_datetime(df['timestamp'])
+        # Convert the 'timestamp' column to datetime type
+        df['timestamp'] = pd.to_datetime(df['timestamp'])
 
-        # # Set 'timestamp' as the index of the dataframe
-        # df.set_index('timestamp', inplace=True)
+        # Set 'timestamp' as the index of the dataframe
+        df.set_index('timestamp', inplace=True)
 
-        # # Calculate moving average over a 30-day period for each hour
-        # hourly_avg = df.groupby(df.index.hour).mean()
-        # hourly_avg = hourly_avg.reindex(range(0, 24), fill_value=0)
+        # Calculate moving average over a 30-day period for each hour
+        hourly_avg = df.groupby(df.index.hour).mean()
+        hourly_avg = hourly_avg.reindex(range(0, 24), fill_value=0)
 
-        # reply = ml_hougang_pb2.PredictionData_Reply()
-        # current_hour = datetime.now().hour
+        #reply = ml_hougang_pb2.PredictionData_Reply()
+        current_hour = datetime.now().hour
 
-        # # Add prediction items for the next 24 hours based on the hourly average
-        # for i in range(24):
-        #     next_hour = (current_hour + i) % 24
-        #     next_timestamp = (datetime.now() + timedelta(hours=i)).strftime("%Y-%m-%d %H:00:00")
+        # Add prediction items for the next 24 hours based on the hourly average
+        for i in range(24):
+            next_hour = (current_hour + i) % 24
+            next_timestamp = (datetime.now() + timedelta(hours=i)).strftime("%Y-%m-%d %H:00:00")
 
-        #     # prediction item for individual
-        #     item = reply.item.add()
-        #     item.timestamp = next_timestamp
-        #     item.electricusage = float(hourly_avg.loc[next_hour, 'electricity_consumption'])
+            # prediction item for individual
+            item = reply.item.add()
+            item.timestamp = next_timestamp
+            item.electricusage = float(hourly_avg.loc[next_hour, 'electricity_consumption'])
 
-        # return reply
+        return reply
 
         # prediction item for individual
         item1 = reply.item.add()
