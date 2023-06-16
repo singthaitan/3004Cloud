@@ -16,6 +16,9 @@
 		 <!-- Custom styles for this template-->
 		 <link rel="stylesheet" href="/static/sb-admin-2.min.css">
 		 <!-- <link rel="stylesheet" href="/static/index.css"> -->
+		 <title>
+			WattWise
+		</title>
 	</head>
 	
 	<body id="page-top" onload="update_values();">
@@ -107,28 +110,84 @@
 									<div class="chart-area">
 										<canvas id="myChart"></canvas>
 									</div>
-									<hr>
 								</div>
 							</div>
 						</div>
 
 
-						<!-- Log Field -->
+						<!-- Pie Chart -->
 						<div class="col-xl-4 col-lg-5">
 							<div class="card shadow mb-4">
 								<!-- Card Header - Dropdown -->
 								<div class="card-header py-3">
-									<h6 class="m-0 font-weight-bold text-primary">Log</h6>
+									<h6 class="m-0 font-weight-bold text-primary">Comparison</h6>
 								</div>
 								<!-- Card Body -->
 								<div class="card-body">
 									<div class="chart-pie">
-										<textarea id="readings"cols="35" rows = "10"></textarea></textarea>
+										<canvas id="comparisonChart"></canvas>
+									</div>
+									
+								</div>
+							</div>
+						</div>
+						
+					</div>
+
+					<div class="row">
+						<div class="col-xl-8 col-lg-7">
+
+							<!-- Prediction Chart -->
+							<div class="card shadow mb-4">
+								<div class="card-header py-3">
+									<h6 class="m-0 font-weight-bold text-primary">Prediction Usage for next 24 hours</h6>
+								</div>
+								<div class="card-body">
+									<div class="chart-area">
+										<canvas id="myChart2"></canvas>
 									</div>
 									<hr>
 								</div>
 							</div>
 						</div>
+
+							<!-- Log -->
+							<div class="col-xl-4 col-lg-5">
+								<div class="card shadow mb-4">
+									<!-- Card Header - Dropdown -->
+									<div class="card-header py-3">
+										<h6 class="m-0 font-weight-bold text-primary">Log</h6>
+									</div>
+									<!-- Card Body -->
+									<div class="card-body">
+										<div class="chart-pie">
+											<textarea id="readings"cols="35" rows = "10"></textarea></textarea>
+										</div>
+										
+									</div>
+								</div>
+							</div>
+
+
+					</div>
+
+					<div class="row">
+						<div class="col-xl-8 col-lg-7">
+
+							<!-- Other household Chart -->
+							<div class="card shadow mb-4">
+								<div class="card-header py-3">
+									<h6 class="m-0 font-weight-bold text-primary">Prediction Usage for region household</h6>
+								</div>
+								<div class="card-body">
+									<div class="chart-area">
+										<canvas id="myChart3"></canvas>
+									</div>
+							
+								</div>
+							</div>
+						</div>
+
 						
 					</div>
 
@@ -180,32 +239,97 @@
 
 	<script type="text/javascript" charset="utf-8">
 		
-		var sensor;
 		var dateTime;
 		var powerConsumption;
 
+		var ownPrediction;
+
+		var householdTypePrediction;
+
+		var lastestData = [];
+
+		var dateTime1 = [];
+		var powerConsumption1 = [];
+
+
+		//JQuery to get data from flask API
 		function update_values(){
-			var recent="";
-			$.getJSON('/getdata',
+
+
+			$.getJSON('/getPastUsage',
 			function(data){
 
 				for (let i in data){
-					sensor = data[i].electricity;
+					powerConsumption = data[i].electricity;
 					dateTime = data[i].timestamp;
-					console.log(sensor);
+					// console.log("Past Consumption: " + powerConsumption);
 
-					$('#readings').val($('#readings').val() + dateTime +": "+sensor+"\n");
+					$('#readings').val($('#readings').val() + dateTime +": "+powerConsumption+"\n");
 					$('#readings').scrollTop($('#readings').scrollHeight);
 
 					chart.data.labels.push(dateTime);
 					chart.data.datasets.forEach((dataset) => {
-						dataset.data.push(sensor);
+						dataset.data.push(powerConsumption);
 					});
 					chart.update();
+
+					// dateTime1.push(data[i].timestamp);
+					// powerConsumption1.push(data[i].electricity);
+
 				}
 				
+				console.log("date: " + dateTime1)
+				lastestData.push(data[0].electricity);
 
 			});
+
+			$.getJSON('/getPrediction',
+			function(predictedData){
+				var ownUsage = predictedData.ownUsage;
+				var regionHouseholdUsage = predictedData.regionHouseholdUsage;
+
+				for (let j in ownUsage){
+					ownPrediction = ownUsage[j].electricity;
+					householdTypePrediction = regionHouseholdUsage[j].electricity;
+
+					dateTime = ownUsage[j].timestamp;
+					// console.log("Own Prediction: " + ownPrediction);
+
+					$('#readings').val($('#readings').val() + dateTime +": "+ownPrediction+"\n");
+					$('#readings').scrollTop($('#readings').scrollHeight);
+
+					chart2.data.labels.push(dateTime);
+					chart2.data.datasets.forEach((dataset) => {
+						dataset.data.push(ownPrediction);
+						//dataset.data.push(householdTypePrediction);
+
+					});
+					chart2.update();
+				}
+
+				lastestData.push(ownUsage[0].electricity);
+
+
+				for (let k in regionHouseholdUsage){
+					householdTypePrediction = regionHouseholdUsage[k].electricity;
+					dateTime = regionHouseholdUsage[k].timestamp;
+					// console.log("HouseHold: " + householdTypePrediction);
+
+					$('#readings').val($('#readings').val() + dateTime +": "+householdTypePrediction+"\n");
+					$('#readings').scrollTop($('#readings').scrollHeight);
+
+					chart3.data.labels.push(dateTime);
+					chart3.data.datasets.forEach((dataset) => {
+						dataset.data.push(householdTypePrediction);
+					});
+					chart3.update();
+				}
+				
+				lastestData.push(regionHouseholdUsage[0].electricity);
+
+
+			});
+			
 			
 			// count++;
 			// if(count >= 10){
@@ -213,18 +337,55 @@
 			// 	count = 0;
 			// }
 		};
+		
 		var ctx = document.getElementById('myChart');		
+		var ctx2 = document.getElementById('myChart2');
+		var ctx3 = document.getElementById('myChart3');	
+		var ctx4 = document.getElementById('comparisonChart');	
 
+		//Past usage Chart
 		var chart = new Chart(ctx, {
+			type: "line",
+			data: {
+				labels: [powerConsumption],
+				datasets: [{
+					fill: false,
+					lineTension: 0,
+					backgroundColor: "rgba(0,0,255,1.0)",
+					borderColor: "rgba(0,0,255,1.0)",
+					data: [dateTime]
+				}] 
+			},
+			options: {
+				legend: {display: false},
+				scales: {
+					xAxes:[{autoSkip: true,
+						maxTicksLimit: 10}],
+					yAxes: [
+						{ticks: {beginAtZero: true}}
+					],
+				
+				}
+			}
+		});
+
+		//Prediction usage chart
+		var chart2 = new Chart(ctx2, {
 		type: "line",
 		data: {
-			labels: [sensor],
+			labels: [ownPrediction],
 			datasets: [{
-			fill: false,
-			lineTension: 0,
-			backgroundColor: "rgba(0,0,255,1.0)",
-			borderColor: "rgba(0,0,255,0.1)",
-			data: [dateTime]
+				fill: false,
+				lineTension: 0,
+				backgroundColor: "rgba(255,0,0,1.0)",
+				borderColor: "rgba(255,0,0,1.0)",
+				data: [dateTime]
+			},{
+				fill: false,
+				lineTension: 0,
+				backgroundColor: "rgba(0,255,0,1.0)",
+				borderColor: "rgba(0,0,255,1.0)",
+				data: [dateTime]
 			}]
 		},
 		options: {
@@ -238,6 +399,59 @@
 			
 			}
 		}
+		});
+
+		//Prediction usage chart
+		var chart3 = new Chart(ctx3, {
+		type: "line",
+		data: {
+			labels: [ownPrediction],
+			datasets: [{
+				fill: false,
+				lineTension: 0,
+				backgroundColor: "rgba(0,255,0,1.0)",
+				borderColor: "rgba(0,0,255,1.0)",
+				data: [dateTime]
+			}]
+		},
+		options: {
+			legend: {display: false},
+			scales: {
+				xAxes:[{autoSkip: true,
+					maxTicksLimit: 10}],
+				yAxes: [
+					{ticks: {beginAtZero: true}}
+				],
+			
+			}
+		}
+		});
+
+		
+		// For a pie chart
+		var myPieChart = new Chart(ctx4, {
+			type: 'pie',
+			data: {
+				datasets: [{
+					data: lastestData,
+					backgroundColor: ['rgba(200, 0, 0, 0.5)', 'rgba(0, 200, 0, 0.5)', 'rgba(0, 0, 200, 0.5)']
+				}],
+
+				labels:[
+					'Predicted',
+					'Region Households',
+					'Current'
+				],
+
+				options: {
+					cutoutPercentage: 0,
+					rotation: 0,
+					circumference: 10
+
+				}
+					
+				
+			}
 		});
 
 		//setInterval(update_values,1500);

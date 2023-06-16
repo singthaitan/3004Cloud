@@ -87,7 +87,7 @@ def home():
 
 
 #ML GET DAY DATA / HOUSEID FROM HOUSEHOLD TABLE 
-@app.route("/getdata",methods=['GET'])
+@app.route("/getPastUsage",methods=['GET'])
 def data():
     list = []
     if request.method == 'GET':
@@ -99,16 +99,18 @@ def data():
                 list.append({'timestamp':item.timestamp, 'electricity':item.electricusage})
 
         print(list)
-        getprediction()
 	    
     return jsonify(list)
 
-
-def getprediction():
-
-    with grpc.insecure_channel('localhost:50052') as channel:
+#ML GET DAY DATA / HOUSEID FROM HOUSEHOLD TABLE 
+@app.route("/getPrediction",methods=['GET'])
+def predictedData():
+    list = []
+    if request.method == 'GET':
+       with grpc.insecure_channel('localhost:50052') as channel:
             stub = ml_hougang_pb2_grpc.ml_HougangStub(channel)
             response = stub.GetPredictionData(ml_hougang_pb2.PredictionData_Request(householdid = session["householdid"]))# enter householedtype here
+            
             list1 = []
             list2 = []
             for item in response.item:
@@ -118,6 +120,12 @@ def getprediction():
             
             print(list1)
             print(list2)
+	    
+    return jsonify(ownUsage = list1, regionHouseholdUsage = list2)
+
+
+
+
 
 
 if __name__ == '__main':
