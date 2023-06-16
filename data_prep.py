@@ -38,8 +38,6 @@ from sklearn.metrics import mean_absolute_error
 # Import early stopping from keras callbacks
 from keras.callbacks import EarlyStopping
 
-
-
 # Import MongoDB
 import pymongo
 import pandas as pd
@@ -139,19 +137,6 @@ listOfID = getAllHouseholdID("5 Room")
 insertDataFromCsv("hourly_5_room_dataset.csv", listOfID, 11)
 """
 
-
-
-
-
-# Load the data from the file 'household_power_consumption.txt' using pandas
-# and specify the delimiter as ';'
-#data = pd.read_csv('household_power_consumption.txt', delimiter=';')
-#data = pd.read_csv('household_power_consumption.csv')
-
-# Convert the 'Date' and 'Time' columns to a single 'date_time' column
-# by combining the two columns and converting to datetime format
-#data['date_time'] = pd.to_datetime(data['Date'] + ' ' + data['Time'])
-
 # Convert the 'Global_active_power' column to numeric format
 # and remove any rows with NaN values
 for row in result:
@@ -160,36 +145,16 @@ for row in result:
     # print("The timestamp is: " + timestamp + "\n" + "The electricity consumption is: " + str(electricity_consumption) + "\n")
     # print(row)
 
-
     row['electricity_consumption'] = pd.to_numeric(row['electricity_consumption'], errors='coerce')
-#row = row.dropna(subset=['electricity_consumption'])
 
-# Convert the 'date_time' column to datetime format
+    # Convert the 'date_time' column to datetime format
     row['timestamp'] = pd.to_datetime(row['timestamp'])
 
-# Keep only the columns 'date_time', 'Global_active_power'
-#row = row.loc[:,['timestamp','electricity_consumption']]
-
-# Sort the data by date_time in ascending order
-#row.sort_values('timestamp', inplace=True, ascending=True)
-
-# Group by hour and calculate sum
-#row = row.groupby(row['date_time'].dt.floor('H')).sum()
-
-# Reset the index of the data
-#row = row.reset_index(drop=True)
-
-#data.to_csv('hourly_1_room_dataset.csv', index=False)
-
-#file_name = f"hourly_{i+1}_room_dataset.csv"
-#data = pd.read_csv(file_name)
-
-#Transform the Global_active_power column of the data DataFrame into a numpy array of float values
+    #Transform the Global_active_power column of the data DataFrame into a numpy array of float values
     dataset.append(row["electricity_consumption"])
 
 #Reshape the numpy array into a 2D array with 1 column
 dataset = np.reshape(dataset, (-1, 1))
-print(dataset.shape)
 
 #Create an instance of the MinMaxScaler class to scale the values between 0 and 1
 scaler = MinMaxScaler(feature_range=(0, 1))
@@ -220,7 +185,6 @@ X_test, Y_test = create_dataset(test, look_back)
 # reshape input to be [samples, time steps, features]
 X_train = np.reshape(X_train, (X_train.shape[0], 1, X_train.shape[1]))
 X_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))
-print(X_train.shape)
 
 # Defining the LSTM model
 model = Sequential()
@@ -233,7 +197,7 @@ model.add(LSTM(100, input_shape=(X_train.shape[1], X_train.shape[2])))
 model.add(Dropout(0.2))
 
 # Adding a dense layer with 1 unit to make predictions
-model.add(Dense(24))
+model.add(Dense(1))
 
 # Compiling the model with mean squared error as the loss function and using Adam optimizer
 model.compile(loss='mean_squared_error', optimizer='adam')
@@ -241,9 +205,6 @@ model.compile(loss='mean_squared_error', optimizer='adam')
 # Fitting the model on training data and using early stopping to avoid overfitting
 history = model.fit(X_train, Y_train, epochs=20, batch_size=24, validation_data=(X_test, Y_test), 
                     callbacks=[EarlyStopping(monitor='val_loss', patience=4)], verbose=1, shuffle=False)
-
-# Displaying a summary of the model
-#model.summary()
 
 # make predictions
 train_predict = model.predict(X_train)
@@ -262,5 +223,5 @@ print('Test Root Mean Squared Error:',np.sqrt(mean_squared_error(Y_test[0], test
 
 print(test_predict[-5])
 
-model_name = f"1_room_model.h5"
+model_name = f"5_room_model.h5"
 model.save(model_name)

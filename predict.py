@@ -44,6 +44,7 @@ collection = mydb["Household"]
 # Get household ID based on household type
 listOfHouseholdID = getAllHouseholdID("1 Room")
 dataset = []
+predictions = []
 
 # Get all records from listOfHouseholdID in Electricity collection
 mydb = myclient["Hougang-Electric"]
@@ -69,16 +70,15 @@ dataset = scaler.fit_transform(dataset)
 
 # convert an array of values into a dataset matrix
 def create_dataset(dataset, look_back=48):
-    X, Y = [], []
+    X = []
     for i in range(len(dataset)-look_back-1):
         a = dataset[i:(i+look_back), 0]
         X.append(a)
-        Y.append(dataset[i + look_back, 0])
-    return np.array(X), np.array(Y)
+    return np.array(X)
 
 # reshape into X=t and Y=t+1
 look_back = 48
-X_test, Y_test = create_dataset(dataset, look_back)
+X_test = create_dataset(dataset, look_back)
 
 # reshape input to be [samples, time steps, features]
 X_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))
@@ -89,4 +89,10 @@ test_predict = model.predict(X_test)
 # invert predictions
 test_predict = scaler.inverse_transform(test_predict)
 
-print(test_predict[:,0])
+#print(test_predict[:,0])
+
+for i in range(24):
+    prediction = test_predict[i,0]
+    predictions.append(prediction)
+    
+print(predictions)
