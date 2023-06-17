@@ -81,8 +81,23 @@ def register():
         return render_template('register.html')
 
 
-@app.route("/home")
+@app.route("/home", methods=['GET','POST'])
 def home():
+    if request.method == 'POST':
+        view = request.form["viewBy"]
+        if view == "monthly":
+            session["viewBy"] = 30
+        elif view == "weekly": 
+            session["viewBy"] = 7
+        elif view == "daily": 
+            session["viewBy"] = 1
+        
+        print(session["viewBy"])
+
+    elif request.method == 'GET':
+        session["viewBy"] = 1
+        return render_template('index.html')
+
     return render_template('index.html')
 
 
@@ -94,11 +109,11 @@ def data():
         with grpc.insecure_channel('localhost:50052') as channel:
             stub = ml_hougang_pb2_grpc.ml_HougangStub(channel)
             response = stub.GetUsageData(ml_hougang_pb2.UsageData_Request(householdid = session["householdid"],
-                                                                          days = 8))
+                                                                          days = session["viewBy"]))
             for item in response.items:
                 list.append({'timestamp':item.timestamp, 'electricity':item.electricusage})
 
-        print(list)
+        #print(list)
 	    
     return jsonify(list)
 
@@ -118,12 +133,15 @@ def predictedData():
             for item in response.item2:
                 list2.append({'timestamp': item.timestamp, 'electricity': item.electricusage})
             
-            print(list1)
-            print(list2)
+            # print(list1)
+            # print(list2)
 	    
     return jsonify(ownUsage = list1, regionHouseholdUsage = list2)
 
 
+
+def viewBY(viewBy):
+    return viewBy
 
 
 

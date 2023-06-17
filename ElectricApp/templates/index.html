@@ -49,7 +49,7 @@
 								<!-- Dropdown - User Information -->
 								<div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
 									aria-labelledby="userDropdown">
-									<a class="dropdown-item" href="#">
+									<!-- <a class="dropdown-item" href="#">
 										<i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
 										Profile
 									</a>
@@ -60,8 +60,8 @@
 									<a class="dropdown-item" href="#">
 										<i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
 										Activity Log
-									</a>
-									<div class="dropdown-divider"></div>
+									</a> -->
+									<!-- <div class="dropdown-divider"></div> -->
 									<a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
 										<i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
 										Logout
@@ -105,6 +105,13 @@
 							<div class="card shadow mb-4">
 								<div class="card-header py-3">
 									<h6 class="m-0 font-weight-bold text-primary">Electricity</h6>
+									
+									<select id = "viewBy" name = "setViewBy" onchange="changeView()">
+										<option value="daily">Daily</option>
+										<option value="weekly">Weekly </option>
+										<option value="monthly">Monthly</option>
+									</select>
+									
 								</div>
 								<div class="card-body">
 									<div class="chart-area">
@@ -141,6 +148,7 @@
 							<div class="card shadow mb-4">
 								<div class="card-header py-3">
 									<h6 class="m-0 font-weight-bold text-primary">Prediction Usage for next 24 hours</h6>
+									
 								</div>
 								<div class="card-body">
 									<div class="chart-area">
@@ -255,11 +263,8 @@
 
 		//JQuery to get data from flask API
 		function update_values(){
-
-
 			$.getJSON('/getPastUsage',
 			function(data){
-
 				for (let i in data){
 					powerConsumption = data[i].electricity;
 					dateTime = data[i].timestamp;
@@ -333,11 +338,51 @@
 			// 	count = 0;
 			// }
 		};
+
+		var viewBy = document.getElementById('viewBy');
+
+		function changeView(){
+			var dataSize = 24*30;
+			$.post("/home", {"viewBy": viewBy.value})
+
+			for (let i = 0; i < dataSize; i++){
+				chart.data.labels.pop();
+				chart.data.datasets.forEach((dataset) => {
+					dataset.data.pop();
+				});
+				chart.update();
+
+			}
+
+			$.getJSON('/getPastUsage',
+			function(data){
+				for (let i in data){
+					powerConsumption = data[i].electricity;
+					dateTime = data[i].timestamp;
+					// console.log("Past Consumption: " + powerConsumption);
+
+					$('#readings').val($('#readings').val() + dateTime +": "+powerConsumption+"\n");
+					$('#readings').scrollTop($('#readings').scrollHeight);
+
+					chart.data.labels.push(dateTime);
+					chart.data.datasets.forEach((dataset) => {
+						dataset.data.push(powerConsumption);
+					});
+					chart.update();
+
+				}
+				
+				lastestData.push(data[0].electricity);
+
+			});
+
+		}
 		
 		var ctx = document.getElementById('myChart');		
 		var ctx2 = document.getElementById('myChart2');
 		var ctx3 = document.getElementById('myChart3');	
 		var ctx4 = document.getElementById('comparisonChart');	
+
 
 		//Past usage Chart
 		var chart = new Chart(ctx, {
