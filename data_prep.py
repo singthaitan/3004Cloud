@@ -80,12 +80,13 @@ def insertDataFromCsv(filename, listOfID, numberOfData):
     for i in data["electricity_consumption"]:
         listOfElecCons.append(i)
 
-    timestamp = datetime.datetime(2010, 1, 1)
+    # timestamp = datetime.datetime(2023, 4, 1)
     numberOfRecordsAdded = 0
     numberOfHouseholds = len(listOfID)
     sublists = np.array_split(listOfElecCons, numberOfHouseholds)
     print(sublists)
     for i in range(len(sublists)):
+        timestamp = datetime.datetime(2023, 4, 1)
         for y in range(len(sublists[i])):
             print(sublists[i][y])
             if y != 0:
