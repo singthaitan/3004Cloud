@@ -8,7 +8,9 @@
 - Run Services through ```python -m services.hg_accsvc``` and ```python -m services.hg_mlsvc```
 - Run application: ```python -m flask run```
 - Open browser at: ```http://127.0.0.1:5000```
-- Login with test credentials: ```user: test@gmail.com | password: Pass```
+- Login with test credentials: 
+    - Hougang: ```user: test@gmail.com | password: Pass```
+    - Ang Mo Kio: ```user: amk_user@gmail.com | password: PassAMK1```
 
 ## Installation via Docker
 - Ensure DOCKER service is running
