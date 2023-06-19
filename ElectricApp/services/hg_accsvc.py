@@ -1,9 +1,10 @@
 from concurrent import futures
 import logging
 
+import grpc
 from proto_files import acc_hougang_pb2
 from proto_files import acc_hougang_pb2_grpc
-import grpc
+
 from pymongo import MongoClient
 from services.hg_config import MONGO_URI
 from pymongo.mongo_client import MongoClient
@@ -23,7 +24,6 @@ col_household = db["Household"]
 class acc_Hougang(acc_hougang_pb2_grpc.acc_HougangServicer):
 
     def Login(self,request,context):
-        print("b")
         email = request.email
         password = request.password
 
@@ -34,10 +34,9 @@ class acc_Hougang(acc_hougang_pb2_grpc.acc_HougangServicer):
             # Check if the password matches
             if check_password_hash(user['password'], password):
                 # Password matches, perform login
-                # ... your login logic ...
                 print (user['householdID'])
-                return acc_hougang_pb2.Login_Reply(success=True,householdid = str(user["householdID"]))  # Replace with your desired response
-
+                return acc_hougang_pb2.Login_Reply(success=True,householdid = str(user["householdID"])) 
+            
         # Invalid email or password
         return acc_hougang_pb2.Login_Reply(success=False)  # Replace with your desired response
     
@@ -77,29 +76,18 @@ class acc_Hougang(acc_hougang_pb2_grpc.acc_HougangServicer):
                 col_account.insert_one(user)
                 return acc_hougang_pb2.Register_Reply(success=True)
     
+
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     # TODO: Create an instance of your servicer
     acc_hougang_pb2_grpc.add_acc_HougangServicer_to_server(acc_Hougang(),server)
-    pass
-
+    port = '50051'
     server.add_insecure_port('[::]:50051')
     server.start()
+    print("Account service server for Hougang started, listening on " + port)
     server.wait_for_termination()
-
 
     
 if __name__ == '__main__':
     logging.basicConfig()
     serve()
-
-
-
-# message Login_Request {
-#     string email =1;
-#     string password = 2;
-# }
-
-# message Login_Reply {
-#     bool success = 1;
-# }

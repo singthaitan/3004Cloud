@@ -1,18 +1,20 @@
 from concurrent import futures
 import logging
 
+import grpc
 from proto_files import ml_hougang_pb2
 from proto_files import ml_hougang_pb2_grpc
-import grpc
+
 from pymongo import MongoClient
 from services.hg_config import MONGO_URI
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+
 from datetime import datetime, timedelta
 from bson import ObjectId
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow import keras
 import os
@@ -44,8 +46,8 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
         start_date_str = start_date.strftime("%Y-%m-%d %H:%M:%S")
         timestamp_str = timestamp.strftime("%Y-%m-%d %H:%M:%S")
         print (houshold_id)
+
         # Query the collection for documents where the timestamp is between start_date_str and timestamp_str
-        # Replace "your_timestamp_field" with the field in your collection that holds the timestamp
         results = collection.find({
             "timestamp": {"$gte": start_date_str, "$lt": timestamp_str},
             "household_id": houshold_id
@@ -84,8 +86,6 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
             item = reply.item2.add()
             item.timestamp = (current_time + timedelta(hours=i)).strftime("%Y-%m-%d %H:%M:%S")
             item.electricusage = householdprediction[i]
-        
-
 
         # Query past 30 days data of the given household
         pipeline = [
@@ -124,13 +124,13 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
         return reply
 
         # prediction item for individual
-        item1 = reply.item.add()
-        item1.timestamp = "2023-06-16 12:00:00"
-        item1.electricusage = 5.0
+        # item1 = reply.item.add()
+        # item1.timestamp = "2023-06-16 12:00:00"
+        # item1.electricusage = 5.0
 
-        item2 = reply.item.add()
-        item2.timestamp = "2023-06-16 13:00:00"
-        item2.electricusage = 6.0
+        # item2 = reply.item.add()
+        # item2.timestamp = "2023-06-16 13:00:00"
+        # item2.electricusage = 6.0
 
         # # prediction item for housing type
         # item3 = reply.item2.add()
@@ -141,9 +141,7 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
         # item4.timestamp = "2023-06-16 13:00:00"
         # item4.electricusage = 12.0
 
-        return reply
-
-
+        # return reply
 
 
 def getElectricityPredictions(household_type):
@@ -162,8 +160,6 @@ def getElectricityPredictions(household_type):
 
         listOfID = roomTypeDict[household_type]
         return listOfID
-
-
 
     # Get household ID based on household type
     listOfHouseholdID = getAllHouseholdID(household_type)
@@ -226,14 +222,14 @@ def getElectricityPredictions(household_type):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     ml_hougang_pb2_grpc.add_ml_HougangServicer_to_server(ml_Hougang(), server)
+    port = '50052'
     server.add_insecure_port('[::]:50052')
     server.start()
+    print("ML service server for Hougang started, listening on " + port)
     server.wait_for_termination()
+
 
 if __name__ == '__main__':
     logging.basicConfig()
     serve()
         
-
-
-
