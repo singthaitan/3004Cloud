@@ -9,8 +9,9 @@
 - Run application: ```python -m flask run```
 - Open browser at: ```http://127.0.0.1:5000```
 - Login with test credentials: 
-    - Hougang: ```user: test@gmail.com | password: Pass```
     - Ang Mo Kio: ```user: amk_user@gmail.com | password: PassAMK1```
+    - Hougang: ```user: hougang_user@gmail.com | password: PassHougang1```
+    - Jurong: ```user: jurong_user@gmail.com | password: PassJurong1```
 
 ## Installation via Docker
 - Ensure DOCKER service is running
