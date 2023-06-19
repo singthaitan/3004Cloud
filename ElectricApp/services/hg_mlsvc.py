@@ -106,7 +106,6 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
 
         # Calculate moving average over a 30-day period for each hour
         hourly_avg = df.groupby(df.index.hour).mean(numeric_only=True)
-        print(hourly_avg)
         hourly_avg = hourly_avg.reindex(range(0, 24), fill_value=0)
 
         #reply = ml_hougang_pb2.PredictionData_Reply()
