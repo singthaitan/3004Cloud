@@ -1,1 +1,0 @@
-MONGO_URI = "mongodb+srv://sp:pass@app-cluster.zxcw8od.mongodb.net/"

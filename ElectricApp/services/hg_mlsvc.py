@@ -6,7 +6,7 @@ from proto_files import ml_hougang_pb2
 from proto_files import ml_hougang_pb2_grpc
 
 from pymongo import MongoClient
-from services.hg_config import MONGO_URI
+# from services.hg_config import MONGO_URI
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
@@ -21,7 +21,7 @@ import os
 
 
 # Create a new client and connect to the server
-client = MongoClient(MONGO_URI, server_api=ServerApi('1'))
+client = MongoClient("mongodb+srv://sp:pass@app-cluster.zxcw8od.mongodb.net/", server_api=ServerApi('1'))
 
 # db = client.get_database()
 db = client["Hougang-Electric"]
