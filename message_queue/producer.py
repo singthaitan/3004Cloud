@@ -9,14 +9,14 @@ from bson import json_util
 def parse_json(data):
     return json.loads(json_util.dumps(data))
 
-def getAllHouseholdID(household_type):
+def getAllHouseholdID(household_type, dbRegion):
     # Getting all household id and storing it into a dictionary based on household type
     roomTypeDict = {"1 Room": [],
                 "2 Room": [],
                 "3 Room": [],
                 "4 Room": [],
                 "5 Room": [],}
-    mydb = myclient["Hougang-Users"]
+    mydb = myclient[dbRegion]
     collection = mydb["Household"]
     query = {}
     result = collection.find(query)
@@ -62,41 +62,51 @@ def getRange(timestamp, householdType):
     return rangeDict[rangeType][0], rangeDict[rangeType][1]
 
 # Household thread
-def household_thread(householdType, householdCount, chosenID):
+def household_thread(householdType, chosenID, dbRegion, timestamp):
+    regionPartition = 0
+    if dbRegion == "AngMoKio-Users":
+        regionPartition = 0
+    elif dbRegion == "Hougang-Users":
+        regionPartition = 1
+    elif dbRegion == "Jurong-Users":
+        regionPartition = 2
 
     # print("Household1 Count: " + str(householdCount))
     # print("Chosen ID: " + str(chosenID))
-    listOfID = getAllHouseholdID(householdType)
+    listOfID = getAllHouseholdID(householdType, dbRegion)
     
-    timestamp = datetime.datetime.now().replace(minute=0, second=0, microsecond=0)
-    timestamp += datetime.timedelta(hours=householdCount)
-    householdCount += 1
+    # timestamp = datetime.datetime.now().replace(minute=0, second=0, microsecond=0)
+    # timestamp += datetime.timedelta(hours=householdCount)
+    # householdCount += 1
 
     rangeMin, rangeMax = getRange(timestamp, householdType)
 
     # Reset chosenID
     if chosenID >= len(listOfID):
         chosenID = 0
+        timestamp += datetime.timedelta(hours=1)
+
 
     # Data to be sent to broker
     producer.send(
         topic_name,
         key={"household_id":parse_json(listOfID[chosenID])},
-        value={"timestamp": str(timestamp), "electricity_consumption":float(format(random.uniform(rangeMin, rangeMax), ".2f"))}
+        value={"timestamp": str(timestamp), "electricity_consumption":float(format(random.uniform(rangeMin, rangeMax), ".2f"))},
+        partition=regionPartition
     )
     chosenID += 1
 
     # Send data every 10 sec (Simulate sending of data every 1 hour)
-    threading.Timer(10.0, household_thread, args=[householdType, householdCount, chosenID]).start()
+    threading.Timer(2.0, household_thread, args=[householdType, chosenID, dbRegion, timestamp]).start()
 
 # Setup
 hostname = "localhost"
 port = "9092"
-topic_name = "test"
+topic_name = "electricity_consumption"
 
 myclient = pymongo.MongoClient("mongodb+srv://shawn:shawn@app-cluster.zxcw8od.mongodb.net/")
-mydb = myclient["Hougang-Users"]
-collection = mydb["Household"]
+# mydb = myclient["Hougang-Users"]
+# collection = mydb["Household"]
 
 # Create producer
 producer = KafkaProducer(
@@ -105,18 +115,36 @@ producer = KafkaProducer(
     key_serializer = lambda v: json.dumps(v).encode('ascii')
 )
 
-# Start both household threads and send them concurrently
-household1Count1 = 0
-chosenID1 = 0
-thread1 = threading.Thread(target=household_thread("1 Room", household1Count1, chosenID1))
+# Start household threads and send them concurrently
+chosenID = 0
+timestamp = datetime.datetime.now().replace(minute=0, second=0, microsecond=0)
+
+# Sending data to hougang region
+thread1 = threading.Thread(target=household_thread("1 Room", chosenID, "Hougang-Users", timestamp))
 thread1.start()
 
-household1Count2 = 0
-chosenID2 = 0
-thread2 = threading.Thread(target=household_thread("2 Room", household1Count2, chosenID2))
+thread2 = threading.Thread(target=household_thread("2 Room", chosenID, "Hougang-Users", timestamp))
 thread2.start()
+
+# Sending data to Ang Mo Kio region
+thread3 = threading.Thread(target=household_thread("1 Room", chosenID, "AngMoKio-Users",timestamp))
+thread3.start()
+
+thread4 = threading.Thread(target=household_thread("5 Room", chosenID, "AngMoKio-Users",timestamp))
+thread4.start()
+
+# Sending data to Jurong region
+thread5 = threading.Thread(target=household_thread("1 Room", chosenID, "Jurong-Users",timestamp))
+thread5.start()
+
+thread6 = threading.Thread(target=household_thread("5 Room", chosenID, "Jurong-Users",timestamp))
+thread6.start()
 
 thread1.join()
 thread2.join()
+thread3.join()
+thread4.join()
+thread5.join()
+thread6.join()
 
 producer.flush()

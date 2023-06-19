@@ -6,8 +6,8 @@ from bson import ObjectId
 # Setup for kafka
 hostname = "localhost"
 port = "9092"
-topic_name = "test"
-group_id = "firstConsumer"
+topic_name = "electricity_consumption"
+group_id = "angmokioConsumer"
 
 # Setup for mongodb
 
@@ -18,13 +18,13 @@ group_id = "firstConsumer"
 
 # Mongodb Atlas
 myclient = pymongo.MongoClient("mongodb+srv://shawn:shawn@app-cluster.zxcw8od.mongodb.net/")
-mydb = myclient["Hougang-Electric"]
+mydb = myclient["AngMoKio-Electric"]
 collection = mydb["query_elec"]
 
 
 # Create consumer
 consumer = KafkaConsumer(
-    client_id = "client1",
+    client_id = "angmokio_client",
     group_id = group_id,
     bootstrap_servers = hostname + ":" + str(port),
     value_deserializer = lambda v: json.loads(v.decode('ascii')),
@@ -32,13 +32,7 @@ consumer = KafkaConsumer(
     max_poll_records = 10
 )
 
-# Subscribe to the topic "test"
-consumer.subscribe(topics=[topic_name])
-consumer.subscription()
-
-# Reading from a specific offset value
-# consumer.assign([TopicPartition(topic_name, 0)])
-# consumer.seek(TopicPartition(topic_name, 0), 0)
+consumer.assign([TopicPartition(topic_name, 0)])
 
 # Printing received messages
 for message in consumer:
