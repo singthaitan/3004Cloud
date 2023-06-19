@@ -105,7 +105,8 @@ class ml_Hougang(ml_hougang_pb2_grpc.ml_HougangServicer):
         df.set_index('timestamp', inplace=True)
 
         # Calculate moving average over a 30-day period for each hour
-        hourly_avg = df.groupby(df.index.hour).mean()
+        hourly_avg = df.groupby(df.index.hour).mean(numeric_only=True)
+        print(hourly_avg)
         hourly_avg = hourly_avg.reindex(range(0, 24), fill_value=0)
 
         #reply = ml_hougang_pb2.PredictionData_Reply()
@@ -171,7 +172,7 @@ def getElectricityPredictions(household_type):
     result = collection.find(query)
     df = pd.DataFrame(list(result))
     dataset = df.tail(73)
-    dataset['electricity_consumption'] = pd.to_numeric(dataset['electricity_consumption'], errors='coerce')
+    dataset.loc[:, 'electricity_consumption'] = pd.to_numeric(dataset['electricity_consumption'], errors='coerce')
     dataset = dataset['electricity_consumption'].tolist()
 
     # Load the model based on household_type
