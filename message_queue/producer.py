@@ -110,7 +110,7 @@ myclient = pymongo.MongoClient("mongodb+srv://shawn:shawn@app-cluster.zxcw8od.mo
 
 # Create producer
 producer = KafkaProducer(
-    bootstrap_servers = hostname + ":" + str(port),
+    bootstrap_servers = ["localhost:9092", "localhost:9093", "localhost:9094"],
     value_serializer = lambda v: json.dumps(v).encode('ascii'),
     key_serializer = lambda v: json.dumps(v).encode('ascii')
 )
