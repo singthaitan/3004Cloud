@@ -1,5 +1,5 @@
 # Use the official Python base image
-FROM python:3.9-slim
+FROM python:3.11
 
 # Set the working directory in the container
 WORKDIR /app
@@ -27,4 +27,8 @@ EXPOSE 5000
 # Copy the entrypoint.sh script to the container
 CMD python -m services.hg_accsvc & \
     python -m services.hg_mlsvc & \
+    python -m services.amk_accsvc & \
+    python -m services.amk_mlsvc & \
+    python -m services.jurong_accsvc & \
+    python -m services.jurong_mlsvc & \
     python -m flask run
