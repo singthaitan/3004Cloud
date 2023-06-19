@@ -304,7 +304,7 @@ def predictedData():
         elif session['region'] == "Jurong":
             with grpc.insecure_channel('localhost:50056') as channel:
                     stub = ml_hougang_pb2_grpc.ml_HougangStub(channel)
-                    response = stub.GetPredictionData(ml_hougang_pb2_grpc.PredictionData_Request(householdid = session["householdid"]))# enter householedtype here
+                    response = stub.GetPredictionData(ml_hougang_pb2.PredictionData_Request(householdid = session["householdid"]))# enter householedtype here
                     
                     list1 = []
                     list2 = []
