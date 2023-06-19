@@ -25,8 +25,8 @@ collection = mydb["query_elec"]
 # Create consumer
 consumer = KafkaConsumer(
     client_id = "hougang_client",
-    group_id = group_id,
-    bootstrap_servers = hostname + ":" + str(port),
+    group_id = None,
+    bootstrap_servers = ["localhost:9092", "localhost:9093", "localhost:9094"],
     value_deserializer = lambda v: json.loads(v.decode('ascii')),
     key_deserializer = lambda v: json.loads(v.decode('ascii')),
     max_poll_records = 10
