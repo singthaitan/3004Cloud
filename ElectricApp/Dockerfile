@@ -25,10 +25,6 @@ ENV FLASK_RUN_HOST=0.0.0.0
 EXPOSE 5000
 
 # Copy the entrypoint.sh script to the container
-COPY entrypoint.sh .
-
-# Make the entrypoint.sh script executable
-RUN chmod +x entrypoint.sh
-
-# Start the Flask application using the entrypoint.sh script
-CMD ["./entrypoint.sh"]
+CMD python -m services.hg_accsvc & \
+    python -m services.hg_mlsvc & \
+    python -m flask run
