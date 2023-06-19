@@ -108,9 +108,8 @@ myclient = pymongo.MongoClient("mongodb+srv://shawn:shawn@app-cluster.zxcw8od.mo
 mydb = myclient["Hougang-Users"]
 collection = mydb["Household"]
 
-
 # Get household ID based on household type
-listOfHouseholdID = getAllHouseholdID("5 Room")
+listOfHouseholdID = getAllHouseholdID("1 Room")
 dataset = []
 
 # Get all records from listOfHouseholdID in electricity_consumption collection
@@ -192,7 +191,6 @@ model = Sequential()
 
 # Adding the first layer with 100 LSTM units and input shape of the data
 model.add(LSTM(100, input_shape=(X_train.shape[1], X_train.shape[2])))
-#model.add(LSTM(64, activation='relu'))
 
 # Adding a dropout layer to avoid overfitting
 model.add(Dropout(0.2))
@@ -222,7 +220,5 @@ print('Train Root Mean Squared Error:',np.sqrt(mean_squared_error(Y_train[0], tr
 print('Test Mean Absolute Error:', mean_absolute_error(Y_test[0], test_predict[:,0]))
 print('Test Root Mean Squared Error:',np.sqrt(mean_squared_error(Y_test[0], test_predict[:,0])))
 
-print(test_predict[-5])
-
 model_name = f"5_room_model.h5"
-model.save(model_name)
+#model.save(model_name)

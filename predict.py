@@ -49,24 +49,18 @@ predictions = []
 # Get all records from listOfHouseholdID in Electricity collection
 mydb = myclient["Hougang-Electric"]
 collection = mydb["Electricity"]
+#mydb = myclient["Hougang-Electric"]
+#collection = mydb["query_elec"]
 query = {"household_id": {"$in": listOfHouseholdID}}
 result = collection.find(query)
+
 df = pd.DataFrame(list(result))
-dataset = df.tail(73)
+dataset = df.tail(50)
 dataset['electricity_consumption'] = pd.to_numeric(dataset['electricity_consumption'], errors='coerce')
 dataset = dataset['electricity_consumption'].tolist()
 
 model_name = f"1_room_model.h5"
 model = keras.models.load_model(model_name)
-
-#Reshape the numpy array into a 2D array with 1 column
-dataset = np.reshape(dataset, (-1, 1))
-
-#Create an instance of the MinMaxScaler class to scale the values between 0 and 1
-scaler = MinMaxScaler(feature_range=(0, 1))
-
-#Fit the MinMaxScaler to the transformed data and transform the values
-dataset = scaler.fit_transform(dataset)
 
 # convert an array of values into a dataset matrix
 def create_dataset(dataset, look_back=48):
@@ -76,23 +70,35 @@ def create_dataset(dataset, look_back=48):
         X.append(a)
     return np.array(X)
 
-# reshape into X=t and Y=t+1
-look_back = 48
-X_test = create_dataset(dataset, look_back)
-
-# reshape input to be [samples, time steps, features]
-X_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))
-
-# make predictions
-test_predict = model.predict(X_test)
-
-# invert predictions
-test_predict = scaler.inverse_transform(test_predict)
-
-#print(test_predict[:,0])
-
 for i in range(24):
-    prediction = test_predict[i,0]
-    predictions.append(prediction)
     
+    #Reshape the numpy array into a 2D array with 1 column
+    dataset = np.reshape(dataset[:], (-1, 1))
+
+    #Create an instance of the MinMaxScaler class to scale the values between 0 and 1
+    scaler = MinMaxScaler(feature_range=(0, 1))
+
+    #Fit the MinMaxScaler to the transformed data and transform the values
+    dataset = scaler.fit_transform(dataset)
+
+    # reshape into X=t and Y=t+1
+    look_back = 48
+    X_test = create_dataset(dataset, look_back)
+
+    # reshape input to be [samples, time steps, features]
+    X_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))
+
+    # make predictions
+    test_predict = model.predict(X_test)
+
+    # invert predictions
+    prediction = scaler.inverse_transform(test_predict)
+
+    predictions.append(prediction[-1])
+
+    dataset = scaler.inverse_transform(dataset)
+    dataset = np.append(dataset, prediction[-1])
+
+predictions = [arr.flatten()[0] for arr in predictions]
 print(predictions)
+    
