@@ -1,60 +1,71 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='popupmsg.css') }}">
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>
-        WattWise
-    </title>
-  </head>
-  <body>
-    <h2>Login</h2>
+<head>
+  <!-- Favicon-->
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
 
-    <form id="login-form" role="form" method="post" action="" style="border:1px solid #ccc">
-      <div class="imgcontainer">
-        <!-- <img src="img_avatar2.png" alt="Avatar" class="avatar"> -->
-      </div>
+  <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='popupmsg.css') }}">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>
+    WattWise
+  </title>
+</head>
 
-      <div class="container">
-        <label for="email"><b>E-mail Address</b></label>
-        <input type="email" placeholder="Enter E-mail Address" name="email" required>
+<body>
+  <div class="card">
+    <div class="card-body text-center">
+      <img class="img-fluid" src="/static/images/wattwise.png">
+      <br>
+      <span class="mb-0 text-muted">
+      </span>
+      <br>
+      <form id="login-form" role="form" method="post" action="" style="border:1px solid #ccc">
+        <div class="imgcontainer">
+          <!-- <img src="img_avatar2.png" alt="Avatar" class="avatar"> -->
+        </div>
 
-        <label for="password"><b>Password</b></label>
-        <input type="password" placeholder="Enter Password" name="password" required>
+        <div class="container">
+          <label for="email"><b>E-mail Address</b></label>
+          <input type="email" placeholder="Enter E-mail Address" name="email" required>
 
-        <label for="region"><b>Region</b></label>
-        <select id="region" name="region">
-          <option value="AngMoKio">Ang Mo Kio</option>
-          <option value="Hougang">Hougang</option>
-          <option value="Jurong">Jurong</option>
-        </select>
-            
-        <button type="submit">Login</button>
-      </div>
+          <label for="password"><b>Password</b></label>
+          <input type="password" placeholder="Enter Password" name="password" required>
 
+          <label for="region"><b>Region</b></label>
+          <select id="region" name="region">
+            <option value="AngMoKio">Ang Mo Kio</option>
+            <option value="Hougang">Hougang</option>
+            <option value="Jurong">Jurong</option>
+          </select>
+
+          <button type="submit">Login</button>
+        </div>
+
+      </form>
       <div class="container" style="background-color:#f1f1f1">
         <p class="text-sm mt-3 mb-0">Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
       </div>
-    </form>
-    <script>
-      // Retrieve the flashed messages from the server-side rendered HTML
-      var messages = JSON.parse('{{ get_flashed_messages() | tojson | safe }}');
+    </div>
+  </div>
+  <script>
+    // Retrieve the flashed messages from the server-side rendered HTML
+    var messages = JSON.parse('{{ get_flashed_messages() | tojson | safe }}');
 
-      // Display each flashed message as a toast
-      messages.forEach(function(message) {
-          console.log("Toast message:", message);
-          Toastify({
-              text: message,
-              duration: 3000, // 3 seconds
-              close: false,
-              gravity: "top",
-              position: "center",
-          }).showToast();
-      });
-    </script>
-  </body>
+    // Display each flashed message as a toast
+    messages.forEach(function (message) {
+      console.log("Toast message:", message);
+      Toastify({
+        text: message,
+        duration: 3000, // 3 seconds
+        close: false,
+        gravity: "top",
+        position: "center",
+      }).showToast();
+    });
+  </script>
+</body>
 </html>
