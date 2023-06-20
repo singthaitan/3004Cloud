@@ -1,6 +1,5 @@
 from concurrent import futures
 import logging
-from unicodedata import numeric
 
 import grpc
 from proto_files import ml_pb2
@@ -29,7 +28,7 @@ collection = db["Electricity"]
 db_household = client["Hougang-Users"]
 collection_household = db_household["Household"]
 
-class ml_Hougang(ml_pb2_grpc.mlServicer):
+class ml_hougang(ml_pb2_grpc.mlServicer):
 
     def GetUsageData(self, request, context):
         household_id = ObjectId(request.householdID)
@@ -213,7 +212,7 @@ def getElectricityPredictions(household_type):
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    ml_pb2_grpc.add_mlServicer_to_server(ml_Hougang(), server)
+    ml_pb2_grpc.add_mlServicer_to_server(ml_hougang(), server)
     port = '50052'
     server.add_insecure_port('[::]:50052')
     server.start()

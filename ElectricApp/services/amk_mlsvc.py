@@ -2,11 +2,10 @@ from concurrent import futures
 import logging
 
 import grpc
-from proto_files import ml_hougang_pb2
-from proto_files import ml_hougang_pb2_grpc
+from proto_files import ml_pb2
+from proto_files import ml_pb2_grpc
 
 from pymongo import MongoClient
-# from services.hg_config import MONGO_URI
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
@@ -14,7 +13,6 @@ from datetime import datetime, timedelta
 from bson import ObjectId
 import pandas as pd
 import numpy as np
-# import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow import keras
 import os
@@ -30,10 +28,10 @@ collection = db["Electricity"]
 db_household = client["AngMoKio-Users"]
 collection_household = db_household["Household"]
 
-class ml_AngMoKio(ml_hougang_pb2_grpc.ml_HougangServicer):
+class ml_angmokio(ml_pb2_grpc.mlServicer):
 
     def GetUsageData(self, request, context):
-        houshold_id = ObjectId(request.householdid)
+        household_id = ObjectId(request.householdID)
         days = request.days
 
         # Get current datetime
@@ -45,47 +43,41 @@ class ml_AngMoKio(ml_hougang_pb2_grpc.ml_HougangServicer):
         # Convert datetime objects to strings
         start_date_str = start_date.strftime("%Y-%m-%d %H:%M:%S")
         timestamp_str = timestamp.strftime("%Y-%m-%d %H:%M:%S")
-        print (houshold_id)
 
         # Query the collection for documents where the timestamp is between start_date_str and timestamp_str
         results = collection.find({
             "timestamp": {"$gte": start_date_str, "$lt": timestamp_str},
-            "household_id": houshold_id
+            "household_id": household_id
         })
 
-
-        reply = ml_hougang_pb2.UsageData_Reply()
+        reply = ml_pb2.UsageData_Reply()
         for doc in results:
-            print( doc['timestamp'])
-            item = ml_hougang_pb2.UsageData()
+            item = ml_pb2.UsageData()
             item.timestamp = doc['timestamp']
-            item.electricusage = doc['electricity_consumption']
+            item.electric_usage = doc['electricity_consumption']
             reply.items.append(item)
 
         return reply
     
+    
     def GetPredictionData(self, request, context):
-        print("aaaaaaaaaaa" +request.householdid)
-        household_id = ObjectId(request.householdid)
+        household_id = ObjectId(request.householdID)
 
         #for housing type
-        household = collection_household.find_one({"_id" : household_id})
-        print("bbbbbbb" +household["housing_type"])
+        household = collection_household.find_one({"_id": household_id})
         householdprediction = getElectricityPredictions(household["housing_type"])
-
-        print(householdprediction)
 
         # The current time, rounded to the next hour
         current_time = datetime.now()
         minutes_past = current_time.minute if current_time.minute != 0 else 60
         current_time += timedelta(minutes=minutes_past)
 
-        reply = ml_hougang_pb2.PredictionData_Reply()
+        reply = ml_pb2.PredictionData_Reply()
 
         for i in range(24):  # for the next 24 hours
             item = reply.item2.add()
             item.timestamp = (current_time + timedelta(hours=i)).strftime("%Y-%m-%d %H:%M:%S")
-            item.electricusage = householdprediction[i]
+            item.electric_usage = householdprediction[i]
 
         # Query past 30 days data of the given household
         pipeline = [
@@ -108,7 +100,7 @@ class ml_AngMoKio(ml_hougang_pb2_grpc.ml_HougangServicer):
         hourly_avg = df.groupby(df.index.hour).mean(numeric_only=True)
         hourly_avg = hourly_avg.reindex(range(0, 24), fill_value=0)
 
-        #reply = ml_hougang_pb2.PredictionData_Reply()
+        #reply = ml_pb2.PredictionData_Reply()
         current_hour = datetime.now().hour
 
         # Add prediction items for the next 24 hours based on the hourly average
@@ -119,27 +111,27 @@ class ml_AngMoKio(ml_hougang_pb2_grpc.ml_HougangServicer):
             # prediction item for individual
             item = reply.item.add()
             item.timestamp = next_timestamp
-            item.electricusage = float(hourly_avg.loc[next_hour, 'electricity_consumption'])
+            item.electric_usage = float(hourly_avg.loc[next_hour, 'electricity_consumption'])
 
         return reply
 
         # prediction item for individual
         # item1 = reply.item.add()
         # item1.timestamp = "2023-06-16 12:00:00"
-        # item1.electricusage = 5.0
+        # item1.electric_usage = 5.0
 
         # item2 = reply.item.add()
         # item2.timestamp = "2023-06-16 13:00:00"
-        # item2.electricusage = 6.0
+        # item2.electric_usage = 6.0
 
         # # prediction item for housing type
         # item3 = reply.item2.add()
         # item3.timestamp = "2023-06-16 12:00:00"
-        # item3.electricusage = 10.0
+        # item3.electric_usage = 10.0
 
         # item4 = reply.item2.add()
         # item4.timestamp = "2023-06-16 13:00:00"
-        # item4.electricusage = 12.0
+        # item4.electric_usage = 12.0
 
         # return reply
 
@@ -150,7 +142,6 @@ def getElectricityPredictions(household_type):
         roomTypeDict = {"1 Room": [], "2 Room": [], "3 Room": [], "4 Room": [], "5 Room": []}
 
         # Query from Household collection
-
         query = {}
         result = collection_household.find(query)
         for row in result:
@@ -171,7 +162,7 @@ def getElectricityPredictions(household_type):
     result = collection.find(query)
     df = pd.DataFrame(list(result))
     dataset = df.tail(73)
-    dataset['electricity_consumption'] = pd.to_numeric(dataset['electricity_consumption'], errors='coerce')
+    dataset.loc[:, 'electricity_consumption'] = pd.to_numeric(dataset['electricity_consumption'], errors='coerce')
     dataset = dataset['electricity_consumption'].tolist()
 
     # Load the model based on household_type
@@ -221,7 +212,7 @@ def getElectricityPredictions(household_type):
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    ml_hougang_pb2_grpc.add_ml_HougangServicer_to_server(ml_AngMoKio(), server)
+    ml_pb2_grpc.add_mlServicer_to_server(ml_angmokio(), server)
     port = '50054'
     server.add_insecure_port('[::]:50054')
     server.start()
