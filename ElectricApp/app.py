@@ -3,20 +3,10 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import grpc
-from proto_files import acc_hougang_pb2
-from proto_files import acc_hougang_pb2_grpc
-from proto_files import ml_hougang_pb2
-from proto_files import ml_hougang_pb2_grpc
-
-# from proto_files import acc_angmokio_pb2
-# from proto_files import acc_angmokio_pb2_grpc
-# from proto_files import ml_angmokio_pb2
-# from proto_files import ml_angmokio_pb2_grpc
-
-# from proto_files import acc_jurong_pb2
-# from proto_files import acc_jurong_pb2_grpc
-# from proto_files import ml_jurong_pb2
-# from proto_files import ml_jurong_pb2_grpc
+from proto_files import account_pb2
+from proto_files import account_pb2_grpc
+from proto_files import ml_pb2
+from proto_files import ml_pb2_grpc
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
@@ -37,55 +27,56 @@ def login():
         email = request.form['email'].lower()
         password = request.form['password']
         region = request.form["region"]
-
-
         
         if region == "Hougang":
             session['region'] = "Hougang"
             with grpc.insecure_channel('localhost:50051') as channel:
-                stub = acc_hougang_pb2_grpc.acc_HougangStub(channel)
-                response = stub.Login(acc_hougang_pb2.Login_Request(email=email, password=password))
+                stub = account_pb2_grpc.accountStub(channel)
+                response = stub.Login(account_pb2.Login_Request(email=email, password=password))
                 
-            if response.success:
-                session["householdid"] = response.householdid
-                return redirect(url_for('home'))
-            else:
-                flash('Login failed. Check login credentials.', 'error')
-                return render_template('login.html')
-        elif region == "AngMoKio":
-            session['region'] = "AngMoKio"
-            with grpc.insecure_channel('localhost:50053') as channel:
-                stub = acc_hougang_pb2_grpc.acc_HougangStub(channel)
-                response = stub.Login(acc_hougang_pb2.Login_Request(email=email, password=password))
+                if response.success == False:
+                    flash('Login failed. Check login credentials.', 'error')
+                    return render_template('login.html')
+                else:
+                    session["householdID"] = response.householdID
+                    return redirect(url_for('home'))
                 
-            if response.success:
-                session["householdid"] = response.householdid
-                return redirect(url_for('home'))
-            else:
-                flash('Login failed. Check login credentials.', 'error')
-                return render_template('login.html')
-        elif region == "Jurong":
-            session['region'] = "Jurong"
+        # elif region == "AngMoKio":
+        #     session['region'] = "AngMoKio"
+        #     with grpc.insecure_channel('localhost:50053') as channel:
+        #         stub = account_pb2_grpc.accountStub(channel)
+        #         response = stub.Login(account_pb2.Login_Request(email=email, password=password))
+                
+        #         if response.success:
+        #             session["householdid"] = response.householdid
+        #             return redirect(url_for('home'))
+        #         else:
+        #             flash('Login failed. Check login credentials.', 'error')
+        #             return render_template('login.html')
+                
+        # elif region == "Jurong":
+        #     session['region'] = "Jurong"
 
-            with grpc.insecure_channel('localhost:50055') as channel:
-                stub = acc_hougang_pb2_grpc.acc_HougangStub(channel)
-                response = stub.Login(acc_hougang_pb2.Login_Request(email=email, password=password))
+        #     with grpc.insecure_channel('localhost:50055') as channel:
+        #         stub = account_pb2_grpc.accountStub(channel)
+        #         response = stub.Login(account_pb2.Login_Request(email=email, password=password))
                 
-            if response.success:
-                session["householdid"] = response.householdid
-                return redirect(url_for('home'))
-            else:
-                flash('Login failed. Check login credentials.', 'error')
-                return render_template('login.html')
-        else:
-            flash('Invalid region selected.', 'error')
-            return render_template('login.html')
+        #         if response.success:
+        #             session["householdID"] = response.householdID
+        #             return redirect(url_for('home'))
+        #         else:
+        #             flash('Login failed. Check login credentials.', 'error')
+        #             return render_template('login.html')
+        # else:
+        #     flash('Invalid region selected.', 'error')
+        #     return render_template('login.html')
 
 
 @app.route('/register', methods=['GET','POST'])
 def register():
     if request.method == 'GET':
         return render_template('register.html')
+    
     elif request.method == 'POST':
         first_name = request.form['first_name'].lower()
         last_name = request.form['last_name'].lower()
@@ -97,56 +88,13 @@ def register():
         region = request.form['region']
         if region == "Hougang":
             with grpc.insecure_channel('localhost:50051') as channel:
-                stub = acc_hougang_pb2_grpc.acc_HougangStub(channel)
-                response = stub.Register(acc_hougang_pb2.Register_Request(
+                stub = account_pb2_grpc.accountStub(channel)
+                response = stub.Register(account_pb2.Register_Request(
                     first_name=first_name,
                     last_name=last_name,
                     email=email,
                     password=password,
                     region=region,
-                    address=address,
-                    unit=unit,
-                    postal=postal
-                ))
-
-                if response.success == False:
-                    if response.error_type == "email":
-                        flash('E-mail address already exists. Please login instead.', 'error')
-                    elif response.error_type == "address":
-                        flash('Address not found, please check Street Address, Unit Number and Postal Code', 'error')
-                else:
-                    flash('Account registered successfully!', 'success')
-
-        elif region == "AngMoKio":
-            with grpc.insecure_channel('localhost:50053') as channel:
-                stub = acc_hougang_pb2_grpc.acc_HougangStub(channel)
-                response = stub.Register(acc_hougang_pb2.Register_Request(
-                    first_name=first_name,
-                    last_name=last_name,
-                    email=email,
-                    password=password,
-                    region=region,
-                    address=address,
-                    unit=unit,
-                    postal=postal
-                ))
-
-                if response.success == False:
-                    if response.error_type == "email":
-                        flash('E-mail address already exists. Please login instead.', 'error')
-                    elif response.error_type == "address":
-                        flash('Address not found, please check Street Address, Unit Number and Postal Code', 'error')
-                else:
-                    flash('Account registered successfully!', 'success')
-
-        elif region == "Jurong":
-            with grpc.insecure_channel('localhost:50055') as channel:
-                stub = acc_hougang_pb2_grpc.acc_HougangStub(channel)
-                response = stub.Register(acc_hougang_pb2.Register_Request(
-                    first_name=first_name,
-                    last_name=last_name,
-                    email=email,
-                    password=password,region=region,
                     address=address,
                     unit=unit,
                     postal=postal
@@ -162,12 +110,12 @@ def register():
 
         # elif region == "AngMoKio":
         #     with grpc.insecure_channel('localhost:50053') as channel:
-        #         stub = acc_angmokio_pb2_grpc.acc_AngMoKioStub(channel)
-        #         response = stub.Register(acc_angmokio_pb2.Register_Request(
+        #         stub = account_pb2_grpc.accountStub(channel)
+        #         response = stub.Register(account_pb2.Register_Request(
         #             first_name=first_name,
         #             last_name=last_name,
         #             email=email,
-        #             password=password,#             region=region,
+        #             password=password, region=region,
         #             address=address,
         #             unit=unit,
         #             postal=postal
@@ -180,11 +128,11 @@ def register():
         #                 flash('Address not found, please check Street Address, Unit Number and Postal Code', 'error')
         #         else:
         #             flash('Account registered successfully!', 'success')
-        
+
         # elif region == "Jurong":
         #     with grpc.insecure_channel('localhost:50055') as channel:
-        #         stub = acc_jurong_pb2_grpc.acc_JurongStub(channel)
-        #         response = stub.Register(acc_jurong_pb2.Register_Request(
+        #         stub = account_pb2_grpc.accountStub(channel)
+        #         response = stub.Register(account_pb2.Register_Request(
         #             first_name=first_name,
         #             last_name=last_name,
         #             email=email,
@@ -201,7 +149,7 @@ def register():
         #                 flash('Address not found, please check Street Address, Unit Number and Postal Code', 'error')
         #         else:
         #             flash('Account registered successfully!', 'success')
-                    
+ 
         return render_template('register.html')
 
 
@@ -232,44 +180,26 @@ def data():
     if request.method == 'GET':
         if session['region'] == "Hougang":
             with grpc.insecure_channel('localhost:50052') as channel:
-                stub = ml_hougang_pb2_grpc.ml_HougangStub(channel)
-                response = stub.GetUsageData(ml_hougang_pb2.UsageData_Request(householdid = session["householdid"],
+                stub = ml_pb2_grpc.mlStub(channel)
+                response = stub.GetUsageData(ml_pb2.UsageData_Request(householdID = session["householdID"],
                                                                             days = session["viewBy"]))
                 for item in response.items:
-                    list.append({'timestamp':item.timestamp, 'electricity':item.electricusage})
-        elif session['region'] == "AngMoKio":
-            with grpc.insecure_channel('localhost:50054') as channel:
-                stub = ml_hougang_pb2_grpc.ml_HougangStub(channel)
-                response = stub.GetUsageData(ml_hougang_pb2.UsageData_Request(householdid = session["householdid"],
-                                                                            days = session["viewBy"]))
-                for item in response.items:
-                    list.append({'timestamp':item.timestamp, 'electricity':item.electricusage})
-
-        elif session['region'] == "Jurong":
-            with grpc.insecure_channel('localhost:50056') as channel:
-                stub = ml_hougang_pb2_grpc.ml_HougangStub(channel)
-                response = stub.GetUsageData(ml_hougang_pb2.UsageData_Request(householdid = session["householdid"],
-                                                                            days = session["viewBy"]))
-                for item in response.items:
-                    list.append({'timestamp':item.timestamp, 'electricity':item.electricusage})
-
+                    list.append({'timestamp':item.timestamp, 'electricity':item.electric_usage})
         # elif session['region'] == "AngMoKio":
         #     with grpc.insecure_channel('localhost:50054') as channel:
-        #         stub = ml_angmokio_pb2_grpc.ml_AngMoKioStub(channel)
-        #         response = stub.GetUsageData(ml_angmokio_pb2.UsageData_Request(householdid = session["householdid"],
+        #         stub = ml_pb2_grpc.ml_HougangStub(channel)
+        #         response = stub.GetUsageData(ml_pb2.UsageData_Request(householdid = session["householdid"],
         #                                                                     days = session["viewBy"]))
         #         for item in response.items:
         #             list.append({'timestamp':item.timestamp, 'electricity':item.electricusage})
 
         # elif session['region'] == "Jurong":
         #     with grpc.insecure_channel('localhost:50056') as channel:
-        #         stub = ml_jurong_pb2_grpc.ml_JurongStub(channel)
-        #         response = stub.GetUsageData(ml_jurong_pb2.UsageData_Request(householdid = session["householdid"],
+        #         stub = ml_pb2_grpc.ml_HougangStub(channel)
+        #         response = stub.GetUsageData(ml_pb2.UsageData_Request(householdid = session["householdid"],
         #                                                                     days = session["viewBy"]))
         #         for item in response.items:
         #             list.append({'timestamp':item.timestamp, 'electricity':item.electricusage})
-
-        #print(list)
         
     return jsonify(list)
 
@@ -280,43 +210,19 @@ def predictedData():
     if request.method == 'GET':
         if session['region'] == "Hougang":
             with grpc.insecure_channel('localhost:50052') as channel:
-                    stub = ml_hougang_pb2_grpc.ml_HougangStub(channel)
-                    response = stub.GetPredictionData(ml_hougang_pb2.PredictionData_Request(householdid = session["householdid"]))# enter householedtype here
+                    stub = ml_pb2_grpc.mlStub(channel)
+                    response = stub.GetPredictionData(ml_pb2.PredictionData_Request(householdID = session["householdID"]))
                     
                     list1 = []
                     list2 = []
                     for item in response.item:
-                        list1.append({'timestamp': item.timestamp, 'electricity': item.electricusage})
+                        list1.append({'timestamp': item.timestamp, 'electricity': item.electric_usage})
                     for item in response.item2:
-                        list2.append({'timestamp': item.timestamp, 'electricity': item.electricusage})
-        elif session['region'] == "AngMoKio":
-            with grpc.insecure_channel('localhost:50054') as channel:
-                    stub = ml_hougang_pb2_grpc.ml_HougangStub(channel)
-                    response = stub.GetPredictionData(ml_hougang_pb2.PredictionData_Request(householdid = session["householdid"]))# enter householedtype here
-                    
-                    list1 = []
-                    list2 = []
-                    for item in response.item:
-                        list1.append({'timestamp': item.timestamp, 'electricity': item.electricusage})
-                    for item in response.item2:
-                        list2.append({'timestamp': item.timestamp, 'electricity': item.electricusage})
-
-        elif session['region'] == "Jurong":
-            with grpc.insecure_channel('localhost:50056') as channel:
-                    stub = ml_hougang_pb2_grpc.ml_HougangStub(channel)
-                    response = stub.GetPredictionData(ml_hougang_pb2.PredictionData_Request(householdid = session["householdid"]))# enter householedtype here
-                    
-                    list1 = []
-                    list2 = []
-                    for item in response.item:
-                        list1.append({'timestamp': item.timestamp, 'electricity': item.electricusage})
-                    for item in response.item2:
-                        list2.append({'timestamp': item.timestamp, 'electricity': item.electricusage})
-                    
+                        list2.append({'timestamp': item.timestamp, 'electricity': item.electric_usage})
         # elif session['region'] == "AngMoKio":
         #     with grpc.insecure_channel('localhost:50054') as channel:
-        #             stub = ml_angmokio_pb2_grpc.ml_AngMoKioStub(channel)
-        #             response = stub.GetPredictionData(ml_angmokio_pb2.PredictionData_Request(householdid = session["householdid"]))# enter householedtype here
+        #             stub = ml_pb2_grpc.ml_HougangStub(channel)
+        #             response = stub.GetPredictionData(ml_pb2.PredictionData_Request(householdid = session["householdid"]))# enter householedtype here
                     
         #             list1 = []
         #             list2 = []
@@ -327,8 +233,8 @@ def predictedData():
 
         # elif session['region'] == "Jurong":
         #     with grpc.insecure_channel('localhost:50056') as channel:
-        #             stub = ml_jurong_pb2_grpc.ml_JurongStub(channel)
-        #             response = stub.GetPredictionData(ml_jurong_pb2.PredictionData_Request(householdid = session["householdid"]))# enter householedtype here
+        #             stub = ml_pb2_grpc.ml_HougangStub(channel)
+        #             response = stub.GetPredictionData(ml_pb2.PredictionData_Request(householdid = session["householdid"]))# enter householedtype here
                     
         #             list1 = []
         #             list2 = []
@@ -336,9 +242,6 @@ def predictedData():
         #                 list1.append({'timestamp': item.timestamp, 'electricity': item.electricusage})
         #             for item in response.item2:
         #                 list2.append({'timestamp': item.timestamp, 'electricity': item.electricusage})
-                    
-            # print(list1)
-            # print(list2)
         
     return jsonify(ownUsage = list1, regionHouseholdUsage = list2)
 
@@ -346,8 +249,6 @@ def predictedData():
 
 def viewBY(viewBy):
     return viewBy
-
-
 
 
 if __name__ == '__main':

@@ -2,11 +2,10 @@ from concurrent import futures
 import logging
 
 import grpc
-from proto_files import acc_hougang_pb2
-from proto_files import acc_hougang_pb2_grpc
+from proto_files import account_pb2
+from proto_files import account_pb2_grpc
 
 from pymongo import MongoClient
-# from services.hg_config import MONGO_URI
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -21,9 +20,9 @@ db = client["Hougang-Users"]
 col_account = db["Account"]
 col_household = db["Household"]
 
-class acc_Hougang(acc_hougang_pb2_grpc.acc_HougangServicer):
+class acc_hougang(account_pb2_grpc.accountServicer):
 
-    def Login(self,request,context):
+    def Login(self, request, context):
         email = request.email
         password = request.password
 
@@ -34,17 +33,19 @@ class acc_Hougang(acc_hougang_pb2_grpc.acc_HougangServicer):
             # Check if the password matches
             if check_password_hash(user['password'], password):
                 # Password matches, perform login
-                print (user['householdID'])
-                return acc_hougang_pb2.Login_Reply(success=True,householdid = str(user["householdID"])) 
-            
-        # Invalid email or password
-        return acc_hougang_pb2.Login_Reply(success=False)  # Replace with your desired response
+                return account_pb2.Login_Reply(success=True, householdID = str(user["householdID"]))      
+            else:
+                # Invalid password
+                return account_pb2.Login_Reply(success=False)
+        else:  
+            # Invalid email
+            return account_pb2.Login_Reply(success=False)
     
 
     def Register(self, request, context):
         # Check if the username already exists in the database
         if col_account.find_one({"e-mail address": request.email}):
-            return acc_hougang_pb2.Register_Reply(success=False, error_type="email")
+            return account_pb2.Register_Reply(success=False, error_type="email")
         else:
             # Hash the password
             hashed_password = generate_password_hash(request.password)
@@ -60,7 +61,7 @@ class acc_Hougang(acc_hougang_pb2_grpc.acc_HougangServicer):
             })
 
             if not household:
-                return acc_hougang_pb2.Register_Reply(success=False, error_type="address")
+                return account_pb2.Register_Reply(success=False, error_type="address")
             else:
                 # Create a new document for the user
                 user = {
@@ -74,13 +75,13 @@ class acc_Hougang(acc_hougang_pb2_grpc.acc_HougangServicer):
 
                 # Insert the document into the collection
                 col_account.insert_one(user)
-                return acc_hougang_pb2.Register_Reply(success=True)
+                return account_pb2.Register_Reply(success=True)
     
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     # TODO: Create an instance of your servicer
-    acc_hougang_pb2_grpc.add_acc_HougangServicer_to_server(acc_Hougang(),server)
+    account_pb2_grpc.add_accountServicer_to_server(acc_hougang(),server)
     port = '50051'
     server.add_insecure_port('[::]:50051')
     server.start()
