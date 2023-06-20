@@ -32,3 +32,82 @@ docker ps
 ```
 http://localhost:5000
 ```
+
+## To run message queue
+### Method 1 (Running on Docker)
+1. Open a command terminal and navigate to message_queue folder directory
+2. Run the following command to start broker on docker: 
+```
+docker compose -f kafka-docker.yml up
+```
+3. Ensure that Zookeeper server is running and at least 1 broker is running on Docker
+4. Start all 3 consumers by running the following commands
+```
+python .\angMoKioConsumer.py
+```
+```
+python .\hougangConsumer.py
+```
+```
+python .\jurongConsumer.py
+```
+5. Lastly, run the producer code
+```
+python .\producer.py
+```
+6. You should see data on the consumers and MongoDB
+
+
+#### <b>Optional commands that may be useful</b>
+1. To view data that are being sent from the producer in a command terminal, use the following command
+```
+docker exec broker1 kafka-console-consumer --bootstrap-server localhost:29092 --topic electricity_consumption --partition 0
+```
+2. To view details of a topic in a command terminal, use the following command
+```
+docker exec broker1 kafka-topics --describe --topic electricity_consumption --bootstrap-server localhost:29092
+```
+
+### Method 2 (Running without docker on Windows)
+#### The following example is running for a single broker
+1. Head to https://kafka.apache.org/downloads to download Apache Kafka onto your computer
+2. Extract the files in your desired location
+3. Open a command terminal and navigate to your Kafka folder Eg. D:\IDE\codes\csc3004_cloud\kafka
+4. Type in the following command
+```
+bin\windows\zookeeper-server-start.bat config\zookeeper.properties
+```
+5. Open another new command terminal and navigate to your Kafka folder Eg. D:\IDE\codes\csc3004_cloud\kafka
+6. Type in the following command
+```
+bin\windows\kafka-server-start.bat config\server.properties
+```
+7. Start all 3 consumers by running the following commands
+```
+python .\angMoKioConsumer.py
+```
+```
+python .\hougangConsumer.py
+```
+```
+python .\jurongConsumer.py
+```
+8. Lastly, run the producer code
+```
+python .\producer.py
+```
+6. You should see data on the consumers and MongoDB
+
+
+#### <b>Optional commands that may be useful</b>
+1. To view data that are being sent from the producer in a command terminal, navigate to windows folder and use the following command
+```
+consumer kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic <topicName> --from-beginning
+```
+2. To view details of a topic in a command terminal, use the following command
+```
+kafka-topics.bat --describe --topic <topicName> --bootstrap-server localhost:9092
+```
+
+* Default port number will be 9092. 
+* --from-beginning tag allows consumers to retrieve data from the very beginning
