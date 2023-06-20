@@ -23,80 +23,64 @@ def index():
 def login():
     if request.method == 'GET':
         return render_template('login.html')
+    
     elif request.method == 'POST':
         email = request.form['email'].lower()
         password = request.form['password']
         region = request.form["region"]
-        
-        if region == "Hougang":
-            session['region'] = "Hougang"
-            with grpc.insecure_channel('localhost:50051') as channel:
+        session['region'] = region
+
+        grpc_port = {
+            "AngMoKio": "50051",
+            "Hougang": "50053",
+            "Jurong": "50055"
+        }
+        channel_port = grpc_port.get(region)
+
+        if channel_port:
+            with grpc.insecure_channel(f'localhost:{channel_port}') as channel:
                 stub = account_pb2_grpc.accountStub(channel)
                 response = stub.Login(account_pb2.Login_Request(email=email, password=password))
-                
-                if response.success == False:
+
+                if response.success is False:
                     flash('Login failed. Check login credentials.', 'error')
-                    return render_template('login.html')
-                else:
-                    session["householdID"] = response.householdID
-                    return redirect(url_for('home'))
-        
-        elif region == "AngMoKio":
-            session['region'] = "AngMoKio"
-            with grpc.insecure_channel('localhost:50053') as channel:
-                stub = account_pb2_grpc.accountStub(channel)
-                response = stub.Login(account_pb2.Login_Request(email=email, password=password))
-                
-                if response.success == False:
-                    flash('Login failed. Check login credentials.', 'error')
-                    return render_template('login.html')
-                else:
-                    session["householdID"] = response.householdID
-                    return redirect(url_for('home'))
-                
-        elif region == "Jurong":
-            session['region'] = "Jurong"
-            with grpc.insecure_channel('localhost:50055') as channel:
-                stub = account_pb2_grpc.accountStub(channel)
-                response = stub.Login(account_pb2.Login_Request(email=email, password=password))
-                
-                if response.success == False:
-                    flash('Login failed. Check login credentials.', 'error')
-                    return render_template('login.html')
                 else:
                     session["householdID"] = response.householdID
                     return redirect(url_for('home'))
 
+        return render_template('login.html')
 
-@app.route('/register', methods=['GET','POST'])
+
+
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
         return render_template('register.html')
-    
+
     elif request.method == 'POST':
-        first_name = request.form['first_name'].lower()
-        last_name = request.form['last_name'].lower()
-        email = request.form['email'].lower()
-        password = request.form['password']
-        address = request.form['address'].lower()
-        unit = request.form['unit']
-        postal = request.form['postal']
         region = request.form['region']
-        if region == "Hougang":
-            with grpc.insecure_channel('localhost:50051') as channel:
+        grpc_port = {
+            "AngMoKio": "50051",
+            "Hougang": "50053",
+            "Jurong": "50055"
+        }
+        channel_port = grpc_port.get(region)
+
+        if channel_port:
+            with grpc.insecure_channel(f'localhost:{channel_port}') as channel:
                 stub = account_pb2_grpc.accountStub(channel)
                 response = stub.Register(account_pb2.Register_Request(
-                    first_name=first_name,
-                    last_name=last_name,
-                    email=email,
-                    password=password,
+                    first_name=request.form['first_name'].lower(),
+                    last_name=request.form['last_name'].lower(),
+                    email=request.form['email'].lower(),
+                    password=request.form['password'],
                     region=region,
-                    address=address,
-                    unit=unit,
-                    postal=postal
+                    address=request.form['address'].lower(),
+                    unit=request.form['unit'],
+                    postal=request.form['postal']
                 ))
 
-                if response.success == False:
+                if response.success is False:
                     if response.error_type == "email":
                         flash('E-mail address already exists. Please login instead.', 'error')
                     elif response.error_type == "address":
@@ -104,49 +88,6 @@ def register():
                 else:
                     flash('Account registered successfully!', 'success')
 
-        elif region == "AngMoKio":
-            with grpc.insecure_channel('localhost:50053') as channel:
-                stub = account_pb2_grpc.accountStub(channel)
-                response = stub.Register(account_pb2.Register_Request(
-                    first_name=first_name,
-                    last_name=last_name,
-                    email=email,
-                    password=password,
-                    region=region,
-                    address=address,
-                    unit=unit,
-                    postal=postal
-                ))
-
-                if response.success == False:
-                    if response.error_type == "email":
-                        flash('E-mail address already exists. Please login instead.', 'error')
-                    elif response.error_type == "address":
-                        flash('Address not found, please check Street Address, Unit Number and Postal Code', 'error')
-                else:
-                    flash('Account registered successfully!', 'success')
-
-        elif region == "Jurong":
-            with grpc.insecure_channel('localhost:50055') as channel:
-                stub = account_pb2_grpc.accountStub(channel)
-                response = stub.Register(account_pb2.Register_Request(
-                    first_name=first_name,
-                    last_name=last_name,
-                    email=email,
-                    password=password,region=region,
-                    address=address,
-                    unit=unit,
-                    postal=postal
-                ))
-
-                if response.success == False:
-                    if response.error_type == "email":
-                        flash('E-mail address already exists. Please login instead.', 'error')
-                    elif response.error_type == "address":
-                        flash('Address not found, please check Street Address, Unit Number and Postal Code', 'error')
-                else:
-                    flash('Account registered successfully!', 'success')
- 
         return render_template('register.html')
 
 
@@ -160,8 +101,6 @@ def home():
             session["viewBy"] = 7
         elif view == "daily": 
             session["viewBy"] = 1
-        
-        print(session["viewBy"])
 
     elif request.method == 'GET':
         session["viewBy"] = 1
@@ -171,101 +110,58 @@ def home():
 
 
 #ML GET DAY DATA / HOUSEID FROM HOUSEHOLD TABLE 
-@app.route("/getPastUsage",methods=['GET'])
+@app.route("/getPastUsage", methods=['GET'])
 def data():
-    list = []
-    if request.method == 'GET':
-        if session['region'] == "Hougang":
-            with grpc.insecure_channel('localhost:50052') as channel:
-                stub = ml_pb2_grpc.mlStub(channel)
-                response = stub.GetUsageData(
-                    ml_pb2.UsageData_Request(
-                    householdID = session["householdID"],
-                    days = session["viewBy"]))
-                
-                for item in response.items:
-                    list.append({'timestamp':item.timestamp, 'electricity':item.electric_usage})
-        
-        elif session['region'] == "AngMoKio":
-            with grpc.insecure_channel('localhost:50054') as channel:
-                stub = ml_pb2_grpc.mlStub(channel)
-                response = stub.GetUsageData(
-                    ml_pb2.UsageData_Request(
-                    householdID = session["householdID"],
-                    days = session["viewBy"]))
-                
-                for item in response.items:
-                    list.append({'timestamp':item.timestamp, 'electricity':item.electric_usage})
-        
-        elif session['region'] == "Jurong":
-            with grpc.insecure_channel('localhost:50056') as channel:
-                stub = ml_pb2_grpc.mlStub(channel)
-                response = stub.GetUsageData(
-                    ml_pb2.UsageData_Request(
-                    householdID = session["householdID"],
-                    days = session["viewBy"]))
-                
-                for item in response.items:
-                    list.append({'timestamp':item.timestamp, 'electricity':item.electric_usage})
+    usage_list = []
+    
+    if session['region'] == "AngMoKio":
+        channel_port = '50052'
+    elif session['region'] == "Hougang":
+        channel_port = '50054'
+    elif session['region'] == "Jurong":
+        channel_port = '50056'
 
-    return jsonify(list)
+    with grpc.insecure_channel(f'localhost:{channel_port}') as channel:
+        stub = ml_pb2_grpc.mlStub(channel)
+        response = stub.GetUsageData(ml_pb2.UsageData_Request(
+            householdID=session["householdID"],
+            days=session["viewBy"]))
+
+        for item in response.items:
+            usage_list.append({'timestamp': item.timestamp, 'electricity': item.electric_usage})
+
+    return jsonify(usage_list)
+
 
 #ML GET DAY DATA / HOUSEID FROM HOUSEHOLD TABLE 
-@app.route("/getPrediction",methods=['GET'])
+@app.route("/getPrediction", methods=['GET'])
 def predictedData():
-    if request.method == 'GET':
-        if session['region'] == "Hougang":
-            with grpc.insecure_channel('localhost:50052') as channel:
-                    stub = ml_pb2_grpc.mlStub(channel)
-                    response = stub.GetPredictionData(
-                        ml_pb2.PredictionData_Request(
-                        householdID = session["householdID"]))
-                    
-                    list1 = [] 
-                    list2 = []
-                    for item in response.item:
-                        list1.append({'timestamp': item.timestamp, 'electricity': item.electric_usage})
-                    
-                    for item in response.item2:
-                        list2.append({'timestamp': item.timestamp, 'electricity': item.electric_usage})
+    list1 = [] 
+    list2 = []
+    
+    if session['region'] == "AngMoKio":
+        channel_port = '50052'
+    elif session['region'] == "Hougang":
+        channel_port = '50054'
+    elif session['region'] == "Jurong":
+        channel_port = '50056'
+    
+    with grpc.insecure_channel(f'localhost:{channel_port}') as channel:
+        stub = ml_pb2_grpc.mlStub(channel)
+        response = stub.GetPredictionData(ml_pb2.PredictionData_Request(householdID=session["householdID"]))
         
-        elif session['region'] == "AngMoKio":
-            with grpc.insecure_channel('localhost:50054') as channel:
-                    stub = ml_pb2_grpc.mlStub(channel)
-                    response = stub.GetPredictionData(
-                        ml_pb2.PredictionData_Request(
-                        householdID = session["householdID"]))
-                    
-                    list1 = [] 
-                    list2 = []
-                    for item in response.item:
-                        list1.append({'timestamp': item.timestamp, 'electricity': item.electric_usage})
-                    
-                    for item in response.item2:
-                        list2.append({'timestamp': item.timestamp, 'electricity': item.electric_usage})
+        for item in response.item:
+            list1.append({'timestamp': item.timestamp, 'electricity': item.electric_usage})
         
-        if session['region'] == "Jurong":
-            with grpc.insecure_channel('localhost:50056') as channel:
-                    stub = ml_pb2_grpc.mlStub(channel)
-                    response = stub.GetPredictionData(
-                        ml_pb2.PredictionData_Request(
-                        householdID = session["householdID"]))
-                    
-                    list1 = [] 
-                    list2 = []
-                    for item in response.item:
-                        list1.append({'timestamp': item.timestamp, 'electricity': item.electric_usage})
-                        
-                    for item in response.item2:
-                        list2.append({'timestamp': item.timestamp, 'electricity': item.electric_usage})
-                        
-    return jsonify(ownUsage = list1, regionHouseholdUsage = list2)
-
+        for item in response.item2:
+            list2.append({'timestamp': item.timestamp, 'electricity': item.electric_usage})
+    
+    return jsonify(ownUsage=list1, regionHouseholdUsage=list2)
 
 
 def viewBY(viewBy):
     return viewBy
 
 
-if __name__ == '__main':
+if __name__ == '__main__':
     app.run(debug=True)

@@ -82,8 +82,8 @@ def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     # TODO: Create an instance of your servicer
     account_pb2_grpc.add_accountServicer_to_server(acc_hougang(),server)
-    port = '50051'
-    server.add_insecure_port('[::]:50051')
+    port = '50053'
+    server.add_insecure_port('[::]:50053')
     server.start()
     print("Account service server for Hougang started, listening on " + port)
     server.wait_for_termination()

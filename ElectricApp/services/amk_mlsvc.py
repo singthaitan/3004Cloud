@@ -213,8 +213,8 @@ def getElectricityPredictions(household_type):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     ml_pb2_grpc.add_mlServicer_to_server(ml_angmokio(), server)
-    port = '50054'
-    server.add_insecure_port('[::]:50054')
+    port = '50052'
+    server.add_insecure_port('[::]:50052')
     server.start()
     print("ML service server for Ang Mo Kio started, listening on " + port)
     server.wait_for_termination()

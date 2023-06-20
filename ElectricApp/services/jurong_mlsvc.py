@@ -216,7 +216,7 @@ def serve():
     port = '50056'
     server.add_insecure_port('[::]:50056')
     server.start()
-    print("ML service server for Ang Mo Kio started, listening on " + port)
+    print("ML service server for Jurong started, listening on " + port)
     server.wait_for_termination()
 
 
