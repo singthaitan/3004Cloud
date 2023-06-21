@@ -52,7 +52,29 @@ docker ps
 ```
 http://localhost:5000
 ```
-
+## Minikube deployment
+- To run on local kubernetes for testing purposes
+- Install latest version of Minikube: ```https://minikube.sigs.k8s.io/docs/start/```
+- Start Minikube
+```
+minikube start
+```
+- Load built image into Minikube
+```
+minikube image load electricapp:latest
+```
+- Run the deployment file to deploy app
+```
+kubectl apply -f kube.yaml
+```
+- Check Services and Pods
+```
+kubectl get services
+```
+```
+kubectl get pods
+```
+- You will get the nodeport's ip and the assigned port. Minikube's default ip is on ```192.168.49.2```. Add the assigned port to navigate to the deployed web app. e.g ```http://192.168.49.2:31061```
 ## To run message queue
 - Ensure you have python kafka library installed in your computer ```pip install kafka-python```
 ### Method 1 (Running on Docker)
