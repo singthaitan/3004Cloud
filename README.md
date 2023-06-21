@@ -75,6 +75,7 @@ kubectl get services
 kubectl get pods
 ```
 - You will get the nodeport's ip and the assigned port. Minikube's default ip is on ```192.168.49.2```. Add the assigned port to navigate to the deployed web app. e.g ```http://192.168.49.2:31061```
+![Example Image](Minikube.png)
 ## To run message queue
 - Ensure you have python kafka library installed in your computer ```pip install kafka-python```
 ### Method 1 (Running on Docker)
