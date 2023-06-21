@@ -11,6 +11,7 @@
     - Jurong:```python -m services.jurong_accsvc``` and ```python -m services.jurong_mlsvc```
 - Run application: ```python -m flask run```
 - Open browser at: ```http://127.0.0.1:5000```
+- Website can also be accessed through hosted cloud server at: ```http://35.247.147.10:5000```
 - Register:
     - Password format
         - (Minimum 8 characters)
