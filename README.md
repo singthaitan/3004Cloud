@@ -62,7 +62,7 @@ http://localhost:5000
 docker compose -f kafka-docker.yml up
 ```
 3. Ensure that Zookeeper server is running and at least 1 broker is running on Docker
-4. Run the following command to create a topic called "electricity_consumption" with 3 partitions
+4. Run the following command on a command terminal to create a topic called "electricity_consumption" with 3 partitions
 ```
 docker exec broker1 kafka-topics --bootstrap-server localhost:29092 --create --if-not-exists --topic electricity_consumption --replication-factor 3 --partitions 3
 ```
@@ -112,7 +112,7 @@ bin\windows\zookeeper-server-start.bat config\zookeeper.properties
 ```
 bin\windows\kafka-server-start.bat config\server.properties
 ```
-7. Type in the following command to create a topic called "electricity_consumption" with 3 partitions
+7. Navigate to the windows folder and type in the following command on a command terminal to create a topic called "electricity_consumption" with 3 partitions
 ```
 kafka-topics.bat --create --if-not-exists --topic electricity_consumption --replication-factor 3 --partitions 3 --bootstrap-server localhost:9092
 ```
