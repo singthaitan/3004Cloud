@@ -16,6 +16,13 @@
         - (Minimum 8 characters)
         - Alphanumeric (At least 1 uppercase, 1 lowercase and 1 digit)
     - Street address, unit number and postal code have to match record in region's household
+    - To test register use the following addresses:
+      |            | Street Address        | Unit number | Postal Code |
+      |------------|-----------------------|-------------|-------------|
+      | Hougang    | 245 Hougang Steet 3   |   #10-453   |    530245   |
+      | Ang Mo Kio | 55 Ang Mo Kio Street 8|   #06-567   |    560055   |
+      | jurong     | 2 Jurong West Street 4|   #12-556   |    640881   |
+      
 - Login with test credentials: 
     - Ang Mo Kio: ```user: amk_user@gmail.com | password: PassAMK1```
     - Hougang: ```user: hougang_user@gmail.com | password: PassHougang1```
