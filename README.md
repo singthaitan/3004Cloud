@@ -127,3 +127,21 @@ kafka-topics.bat --describe --topic <topicName> --bootstrap-server localhost:909
 
 * Default port number will be 9092. 
 * --from-beginning tag allows consumers to retrieve data from the very beginning
+
+## To train and generate the 1-Room RNN models
+1. Navigate to ml_training folder and edit train.py
+2. Change line 112 
+```
+listOfHouseholdID = getAllHouseholdID("1 Room")
+```
+3. Change line 223 
+```
+model_name = f"1_room_model.h5"
+```
+4. Save the train.py
+1. Open a command terminal and navigate to ml_training folder directory
+2. Run the following command execute the train.py: 
+```
+python .\train.py
+```
+#### <b>To generate the other room model, change step 2 and 3 accordingly and repeat the steps</b>
