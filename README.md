@@ -22,7 +22,7 @@
       | Hougang    | 245 Hougang Steet 3   |   #10-453   |    530245   |
       | Ang Mo Kio | 55 Ang Mo Kio Street 8|   #06-567   |    560055   |
       | jurong     | 2 Jurong West Street 4|   #12-556   |    640881   |
-      
+    - Disclaimer: Current database only has a few addresses, hence specific addresses in the table above must be entered. In         the real use case, assume that all addresses in Singapore is in the database.
 - Login with test credentials: 
     - Ang Mo Kio: ```user: amk_user@gmail.com | password: PassAMK1```
     - Hougang: ```user: hougang_user@gmail.com | password: PassHougang1```
