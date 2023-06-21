@@ -66,7 +66,7 @@ docker compose -f kafka-docker.yml up
 ```
 docker exec broker1 kafka-topics --bootstrap-server localhost:29092 --create --if-not-exists --topic electricity_consumption --replication-factor 3 --partitions 3
 ```
-5. You should see a Created topic electricity_consumption
+5. You should see a message "Created topic electricity_consumption"
 6. Start all 3 consumers by running the following commands
 ```
 python .\angMoKioConsumer.py
