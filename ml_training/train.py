@@ -220,5 +220,5 @@ print('Train Root Mean Squared Error:',np.sqrt(mean_squared_error(Y_train[0], tr
 print('Test Mean Absolute Error:', mean_absolute_error(Y_test[0], test_predict[:,0]))
 print('Test Root Mean Squared Error:',np.sqrt(mean_squared_error(Y_test[0], test_predict[:,0])))
 
-model_name = f"5_room_model.h5"
-#model.save(model_name)
+model_name = f"1_room_model.h5"
+model.save(model_name)

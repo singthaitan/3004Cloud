@@ -20,7 +20,7 @@
     - To test register use the following addresses:
       |            | Street Address        | Unit number | Postal Code |
       |------------|-----------------------|-------------|-------------|
-      | Hougang    | 245 Hougang Steet 3   |   #10-453   |    530245   |
+      | Hougang    | 245 Hougang Street 3   |   #10-453   |    530245   |
       | Ang Mo Kio | 55 Ang Mo Kio Street 8|   #06-567   |    560055   |
       | jurong     | 2 Jurong West Street 4|   #12-556   |    640881   |
     - Disclaimer: Current database only has a few addresses, hence specific addresses in the table above must be entered. In         the real use case, assume that all addresses in Singapore is in the database.
@@ -32,15 +32,19 @@
 ## Installation via Docker
 - Ensure DOCKER service is running
 - Open terminal
-- Run the following to build the docker image
+- Run the following to pull the docker image from DockerHub
 ```
-docker build -t frontend .
+docker pull singthaitan/electricapp:latest
 ```
-- Run the following to start the docker for front end
+- Run the following to build the docker image locally
+```
+docker build -t electricapp .
+```
+- Run the following to start the docker container
 ``` 
-docker run -d -p 5000:5000 --name frontend_docker frontend
+docker run -d -p 5000:5000 --name electricapp electricapp
 ```
-- Run the following to ensure that service ```frontend_docker``` is running
+- Run the following to ensure that service ```electricapp``` is running
 ```
 docker ps
 ``` 
@@ -146,3 +150,21 @@ kafka-topics.bat --bootstrap-server localhost:9092 --alter --topic <topicName> -
 
 * Default port number will be 9092. 
 * --from-beginning tag allows consumers to retrieve data from the very beginning
+
+## To train and generate the 1-Room RNN models
+1. Navigate to ml_training folder and edit train.py
+2. Change line 112 
+```
+listOfHouseholdID = getAllHouseholdID("1 Room")
+```
+3. Change line 223 
+```
+model_name = f"1_room_model.h5"
+```
+4. Save the train.py
+1. Open a command terminal and navigate to ml_training folder directory
+2. Run the following command execute the train.py: 
+```
+python .\train.py
+```
+#### <b>To generate the other room model, change step 2 and 3 accordingly and repeat the steps</b>
