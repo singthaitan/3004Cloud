@@ -32,15 +32,19 @@
 ## Installation via Docker
 - Ensure DOCKER service is running
 - Open terminal
-- Run the following to build the docker image
+- Run the following to pull the docker image from DockerHub
 ```
-docker build -t frontend .
+docker pull singthaitan/electricapp:latest
 ```
-- Run the following to start the docker for front end
+- Run the following to build the docker image locally
+```
+docker build -t electricapp .
+```
+- Run the following to start the docker container
 ``` 
-docker run -d -p 5000:5000 --name frontend_docker frontend
+docker run -d -p 5000:5000 --name electricapp electricapp
 ```
-- Run the following to ensure that service ```frontend_docker``` is running
+- Run the following to ensure that service ```electricapp``` is running
 ```
 docker ps
 ``` 
