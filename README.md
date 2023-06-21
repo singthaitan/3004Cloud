@@ -50,6 +50,7 @@ http://localhost:5000
 ```
 
 ## To run message queue
+- Ensure you have python kafka library installed in your computer ```pip install kafka-python```
 ### Method 1 (Running on Docker)
 1. Open a command terminal and navigate to message_queue folder directory
 2. Run the following command to start broker on docker: 
@@ -57,7 +58,12 @@ http://localhost:5000
 docker compose -f kafka-docker.yml up
 ```
 3. Ensure that Zookeeper server is running and at least 1 broker is running on Docker
-4. Start all 3 consumers by running the following commands
+4. Run the following command to create a topic called "electricity_consumption" with 3 partitions
+```
+docker exec broker1 kafka-topics --bootstrap-server localhost:29092 --create --if-not-exists --topic electricity_consumption --replication-factor 3 --partitions 3
+```
+5. You should see a Created topic electricity_consumption
+6. Start all 3 consumers by running the following commands
 ```
 python .\angMoKioConsumer.py
 ```
@@ -67,11 +73,11 @@ python .\hougangConsumer.py
 ```
 python .\jurongConsumer.py
 ```
-5. Lastly, run the producer code
+7. Lastly, run the producer code
 ```
 python .\producer.py
 ```
-6. You should see data on the consumers and MongoDB
+8. You should see data on the consumers and MongoDB
 
 
 #### <b>Optional commands that may be useful</b>
@@ -82,6 +88,10 @@ docker exec broker1 kafka-console-consumer --bootstrap-server localhost:29092 --
 2. To view details of a topic in a command terminal, use the following command
 ```
 docker exec broker1 kafka-topics --describe --topic electricity_consumption --bootstrap-server localhost:29092
+```
+3. To change number of partitions
+```
+docker exec broker1 kafka-topics --bootstrap-server localhost:29092 --alter --topic electricity_consumption --partitions 3
 ```
 
 ### Method 2 (Running without docker on Windows)
@@ -98,7 +108,12 @@ bin\windows\zookeeper-server-start.bat config\zookeeper.properties
 ```
 bin\windows\kafka-server-start.bat config\server.properties
 ```
-7. Start all 3 consumers by running the following commands
+7. Type in the following command to create a topic called "electricity_consumption" with 3 partitions
+```
+kafka-topics.bat --create --if-not-exists --topic electricity_consumption --replication-factor 3 --partitions 3 --bootstrap-server localhost:9092
+```
+8. You should see a message "Created topic electricity_consumption"
+9. Start all 3 consumers by running the following commands
 ```
 python .\angMoKioConsumer.py
 ```
@@ -108,11 +123,11 @@ python .\hougangConsumer.py
 ```
 python .\jurongConsumer.py
 ```
-8. Lastly, run the producer code
+10. Lastly, run the producer code
 ```
 python .\producer.py
 ```
-6. You should see data on the consumers and MongoDB
+11. You should see data on the consumers and MongoDB
 
 
 #### <b>Optional commands that may be useful</b>
@@ -123,6 +138,10 @@ consumer kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic <t
 2. To view details of a topic in a command terminal, use the following command
 ```
 kafka-topics.bat --describe --topic <topicName> --bootstrap-server localhost:9092
+```
+3. To change number of partitions
+```
+kafka-topics.bat --bootstrap-server localhost:9092 --alter --topic <topicName> --partitions 3
 ```
 
 * Default port number will be 9092. 
