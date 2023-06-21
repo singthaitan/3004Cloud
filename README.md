@@ -5,9 +5,17 @@
 - Run virtualenv (on Windows): ```venv\Scripts\activate```
 - Change directory: ```cd ElectricApp```
 - Install Python dependencies: ```pip install -r requirements.txt```
-- Run Services through ```python -m services.hg_accsvc``` and ```python -m services.hg_mlsvc```
+- Run Services through 
+    - Ang Mo Kio: ```python -m services.amk_accsvc``` and ```python -m services.amk_mlsvc```
+    - Hougang: ```python -m services.hg_accsvc``` and ```python -m services.hg_mlsvc```
+    - Jurong:```python -m services.jurong_accsvc``` and ```python -m services.jurong_mlsvc```
 - Run application: ```python -m flask run```
 - Open browser at: ```http://127.0.0.1:5000```
+- Register:
+    - Password format
+        - (Minimum 8 characters)
+        - Alphanumeric (At least 1 uppercase, 1 lowercase and 1 digit)
+    - Street address, unit number and postal code have to match record in region's household
 - Login with test credentials: 
     - Ang Mo Kio: ```user: amk_user@gmail.com | password: PassAMK1```
     - Hougang: ```user: hougang_user@gmail.com | password: PassHougang1```
