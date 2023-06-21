@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: electricapp-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: electricapp
+  template:
+    metadata:
+      labels:
+        app: electricapp
+    spec:
+      containers:
+      - name: electricapp-container
+        image: electricapp:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: electricapp-service
+spec:
+  selector:
+    app: electricapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: NodePort
