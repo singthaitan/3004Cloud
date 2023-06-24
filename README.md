@@ -79,7 +79,7 @@ kubectl get pods
 ## To run message queue
 - Ensure you have python kafka library installed in your computer ```pip install kafka-python```
 ### Method 1 (Running on Docker)
-1. Once the docker container for the application is running, open a command terminal and run the following command:
+1. Once the docker container for the application is running, open a command terminal and run the following command to copy message_queue folder to your local machine:
 ```
 docker cp <container_id>:/app/message_queue <your local path>
 ```
