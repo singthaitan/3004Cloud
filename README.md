@@ -56,18 +56,24 @@ http://localhost:5000
 ## To run message queue
 - Ensure you have python kafka library installed in your computer ```pip install kafka-python```
 ### Method 1 (Running on Docker)
-1. Open a command terminal and navigate to message_queue folder directory
-2. Run the following command to start broker on docker: 
+1. Once the docker container for the application is running, open a command terminal and run the following command:
+```
+docker cp <container_id>:/app/message_queue <your local path>
+```
+- container_id looks something like: 3789855044e9
+- local path looks something like: C:/Users/Shawn/Downloads
+2. Open a command terminal and navigate to message_queue folder directory
+3. Run the following command to start broker on docker: 
 ```
 docker compose -f kafka-docker.yml up
 ```
-3. Ensure that Zookeeper server is running and at least 1 broker is running on Docker
-4. Run the following command on a command terminal to create a topic called "electricity_consumption" with 3 partitions
+4. Ensure that Zookeeper server is running and at least 1 broker is running on Docker
+5. Run the following command on a command terminal to create a topic called "electricity_consumption" with 3 partitions
 ```
 docker exec broker1 kafka-topics --bootstrap-server localhost:29092 --create --if-not-exists --topic electricity_consumption --replication-factor 3 --partitions 3
 ```
-5. You should see a Created topic electricity_consumption
-6. Start all 3 consumers by running the following commands
+6. You should see a Created topic electricity_consumption
+7. Start all 3 consumers by running the following commands
 ```
 python .\angMoKioConsumer.py
 ```
@@ -77,11 +83,11 @@ python .\hougangConsumer.py
 ```
 python .\jurongConsumer.py
 ```
-7. Lastly, run the producer code
+8. Lastly, run the producer code
 ```
 python .\producer.py
 ```
-8. You should see data on the consumers and MongoDB
+9. You should see data on the consumers and MongoDB
 
 
 #### <b>Optional commands that may be useful</b>
