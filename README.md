@@ -52,7 +52,30 @@ docker ps
 ```
 http://localhost:5000
 ```
-
+## Minikube deployment
+- To run on local kubernetes for testing purposes
+- Install latest version of Minikube: ```https://minikube.sigs.k8s.io/docs/start/```
+- Start Minikube
+```
+minikube start
+```
+- Load built image into Minikube
+```
+minikube image load electricapp:latest
+```
+- Run the deployment file to deploy app
+```
+kubectl apply -f kube.yaml
+```
+- Check Services and Pods
+```
+kubectl get services
+```
+```
+kubectl get pods
+```
+- You will get the nodeport's ip and the assigned port. Minikube's default ip is on ```192.168.49.2```. Add the assigned port to navigate to the deployed web app. e.g ```http://192.168.49.2:31061```
+![Example Image](Minikube.png)
 ## To run message queue
 - Ensure you have python kafka library installed in your computer ```pip install kafka-python```
 ### Method 1 (Running on Docker)
@@ -72,8 +95,8 @@ docker compose -f kafka-docker.yml up
 ```
 docker exec broker1 kafka-topics --bootstrap-server localhost:29092 --create --if-not-exists --topic electricity_consumption --replication-factor 3 --partitions 3
 ```
-6. You should see a Created topic electricity_consumption
-7. Start all 3 consumers by running the following commands
+5. You should see a message "Created topic electricity_consumption"
+6. Start all 3 consumers by running the following commands
 ```
 python .\angMoKioConsumer.py
 ```
